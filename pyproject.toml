@@ -1,0 +1,32 @@
+[project]
+name = "cmhc-portal"
+version = "0.1.0"
+description = "Scrape and organize CMHC housing data"
+authors = [
+    { name = "jstnck", email = "justin.cooke.inbox@outlook.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.27",
+    "polars>=1.0",
+    "duckdb>=1.0",
+    "geopandas>=1.1.3",
+    "topojson>=1.10",
+    "shiny>=1.0",
+    "shinywidgets>=0.5",
+    "plotly>=5.20",
+    "reflex>=0.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.6,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "src"
+module-name = "cmhc"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

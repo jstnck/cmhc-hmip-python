@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv
+.pytest_cache/
+
+# Data — never commit fetched CSVs, parquet, or run logs
+data/raw/
+data/clean/
+data/logs/
+*.duckdb
+*.duckdb.wal
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
