@@ -8,11 +8,11 @@ wheels/
 .venv
 .pytest_cache/
 
-# Data — never commit fetched CSVs, parquet, or run logs
+# Data — never commit fetched CSVs, parquet, or run logs.
+# The built data marts in data/marts/ ARE tracked (shareable single-file artifact).
 data/raw/
 data/clean/
 data/logs/
-*.duckdb
 *.duckdb.wal
 
 # Notebooks checkpoints

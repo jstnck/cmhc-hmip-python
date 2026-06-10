@@ -6,7 +6,7 @@ So we filter client-side based on what each table is structured for.
 REMOVABLE OPTIMIZATION: non-CMA-member CSDs skip CMA-scoped breakdowns
 (Survey Zones / Neighbourhoods / Census Tracts) since those geographies are
 defined inside CMAs. Empirically backed by 881/881 empty results in the
-2026-05-23 `pull_csds.py --all` sample (logged in DATA_DISCOVERY.md), but
+2026-05-23 `pull_csds.py --all` sample (logged in docs/DATA_DISCOVERY.md), but
 *not yet conclusive across every RMS table_id*. If we ever want to re-verify
 or CMHC starts publishing at the non-CMA level, remove the `CMA_SCOPED_*`
 guard in `is_valid_for_geo`. Currently scoped to Ontario only — extends
@@ -47,7 +47,7 @@ CANADA_AGG_FILTERS = {"All", "10k", "50k", "Metro"}
 # NOTE: a much larger set of Scss 1.x tables 500s for *specific* (table, CMA)
 # pairs but works fine for most other CMAs — those are deliberately NOT
 # denylisted here, since blocking them would lose the ~35 valid CMA datasets
-# per table. See "Known issues" in PROGRESS.md.
+# per table. See "Known issues" in docs/PROGRESS.md.
 BROKEN_TABLE_IDS = {"1.16.3.4", "1.16.3.5"}
 
 

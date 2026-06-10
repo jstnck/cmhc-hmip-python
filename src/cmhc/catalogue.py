@@ -8,7 +8,7 @@ The R package is still maintained, but its vignettes only exercise a narrow
 slice of the catalogue (Bedroom Type, Dwelling Type) — so stale filter sets
 and dead table_ids in less-used dimensions can sit upstream for years. When
 porting changes from upstream, verify each row with `scripts/probe_table.py`;
-log finds in `DATA_DISCOVERY.md`.
+log finds in `docs/DATA_DISCOVERY.md`.
 """
 
 from dataclasses import dataclass, field
@@ -131,7 +131,7 @@ def _expand_scss_timeseries() -> list[Table]:
 # AppliedFilter to most of these rows. HMIP rejects that filter for tables where
 # bedroom isn't a dimension — the cross-product narrows to zero rows and HMIP
 # returns "No data available", indistinguishable from a real empty result.
-# We omit the bedroom filter entirely. See DATA_DISCOVERY.md 2026-05-23 entry.
+# We omit the bedroom filter entirely. See docs/DATA_DISCOVERY.md 2026-05-23 entry.
 _RMS_SERIES = [
     ("Vacancy Rate",      "1", "Bedroom Type",         "1",  "rms"),
     ("Vacancy Rate",      "1", "Year of Construction", "2",  "rms"),

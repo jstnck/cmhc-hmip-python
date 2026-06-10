@@ -12,7 +12,7 @@ Usage:
     uv run python scripts/probe_table.py 9.9.9 --geo Canada --raw  # ad-hoc, no catalogue lookup
 
 When the bare form works but the catalogue filters return empty, that's a stale
-filter — log it in DATA_DISCOVERY.md, fix catalogue.py, re-pull.
+filter — log it in docs/DATA_DISCOVERY.md, fix catalogue.py, re-pull.
 """
 
 import argparse

@@ -73,3 +73,22 @@ def test_share_absorbed_only_has_dwelling_type():
     hits = find(survey="Scss", series="Share absorbed at completion")
     dimensions = {t.dimension for t in hits}
     assert dimensions == {"Dwelling Type"}
+
+
+def test_no_stale_bedroom_filter_on_non_bedroom_dimensions():
+    """Regression for 2026-05-23 finding: the R catalogue applied
+    `bedroom_count_type_desc_en` to every RMS Vacancy Rate row regardless of
+    dimension. HMIP rejects that filter for tables whose dimension isn't
+    Bedroom Type — the cross-product narrows to zero and HMIP returns
+    "No data available", indistinguishable from a real empty.
+
+    This silently suppressed 9 RMS dimensions (rent ranges, rent quartiles,
+    year of construction, structure size, summary statistics) for years
+    upstream. See docs/DATA_DISCOVERY.md 2026-05-23 entry.
+    """
+    for t in CATALOGUE:
+        if t.survey == "Rms" and t.dimension != "Bedroom Type":
+            assert "bedroom_count_type_desc_en" not in t.filters, (
+                f"Stale bedroom filter on RMS dimension={t.dimension!r} "
+                f"table_id={t.table_id} would silently return zero rows"
+            )

@@ -1,6 +1,6 @@
 import pytest
 
-from cmhc.geographies import CANADA, CMAS, PROVINCES, get
+from cmhc.geographies import CANADA, CMAS, PROVINCES, get, normalize_name
 
 
 def test_canada():
@@ -54,3 +54,22 @@ def test_ontario_ct_lookup_loaded():
 def test_unknown_geo_raises():
     with pytest.raises(KeyError):
         get("Atlantis")
+
+
+def test_normalize_name_slash_to_hyphen():
+    # Regression for 2026-06-10 finding: StatCan reference data uses '/' for
+    # compound CSD/CMA names but CMHC's HMIP renders them with ' - '. The mart
+    # filter previously rejected the StatCan form against HMIP-sourced parquet
+    # geography names, silently dropping 5 Ontario CSDs (Guelph-Eramosa, Greater
+    # Sudbury, McNab-Braeside, The Nation, West Nipissing). See
+    # docs/DATA_DISCOVERY.md 2026-06-10 entry.
+    assert normalize_name("Guelph/Eramosa (TP)") == "Guelph-Eramosa (TP)"
+    assert normalize_name("Greater Sudbury / Grand Sudbury (CV)") == (
+        "Greater Sudbury - Grand Sudbury (CV)"
+    )
+    assert normalize_name("McNab/Braeside (TP)") == "McNab-Braeside (TP)"
+    # Idempotent: already-normalized names are unchanged
+    assert normalize_name("Toronto") == "Toronto"
+    assert normalize_name("Guelph-Eramosa (TP)") == "Guelph-Eramosa (TP)"
+    # None propagates
+    assert normalize_name(None) is None

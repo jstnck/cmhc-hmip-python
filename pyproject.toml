@@ -16,6 +16,7 @@ dependencies = [
     "shinywidgets>=0.5",
     "plotly>=5.20",
     "reflex>=0.6",
+    "pyarrow>=24.0.0",
 ]
 
 [build-system]

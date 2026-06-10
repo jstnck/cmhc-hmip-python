@@ -34,6 +34,28 @@ TYPE_NEIGHBOURHOOD = 6
 TYPE_CT = 7
 
 
+def normalize_name(name: str | None) -> str | None:
+    """Canonicalize a CMA/CSD display name for cross-source matching.
+
+    CMHC's HMIP renders compound names with hyphens ('Guelph-Eramosa',
+    'Greater Sudbury - Grand Sudbury'); StatCan's reference data uses
+    forward slashes ('Guelph/Eramosa', 'Greater Sudbury / Grand Sudbury').
+    We canonicalize on the hyphen form because that's what shows up in our
+    HMIP-sourced parquets — and what an analyst will see in the data mart.
+
+    Apply this whenever a name from a StatCan reference (cmas.csv,
+    csds_ontario*.csv) is compared against a name from a CMHC parquet, or
+    when building any lookup that joins those two name spaces.
+
+    Discovered 2026-06-10 via the mart audit — 5 Ontario CSDs were being
+    silently dropped because their lookup labels used '/' but the parquet
+    used '-'. See docs/DATA_DISCOVERY.md.
+    """
+    if name is None:
+        return None
+    return name.replace("/", "-")
+
+
 @dataclass(frozen=True)
 class Geography:
     name: str
