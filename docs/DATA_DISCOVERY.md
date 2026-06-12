@@ -78,6 +78,51 @@ A copy of the bulletin lives under `data/raw/ontario_gov/affordable_units/` for 
 
 Append-only. Newest at top.
 
+### 2026-06-11 — Half the static-data-table downloads are JS-injected, invisible to the httpx scraper (mortgage delinquency among them)
+
+**Finding.** Asked whether CMHC publishes **mortgage delinquency** data. It does — but not where the project was looking.
+
+- **HMIP: no.** The HMIP catalogue (`catalogue.py`) covers Rms, Scss, Srms, Census, Seniors, Core Housing Need only. No mortgage / delinquency / arrears / credit series. Confirmed by grep; consistent with RESEARCH.md's note that the Mortgage-and-Debt domain is "Unique — not served by HMIP."
+- **Static data tables: yes.** A dedicated leaf page, *"Mortgage Delinquency Rate: Canada, Provinces and CMAs"* (`mortgage-and-debt` section), already in `data/static_catalogue.json` — but with **zero captured asset URLs**.
+
+The deeper finding is structural: `build_static_catalogue.py`'s discovery method (httpx GET the leaf page, regex the HTML for `assets.cmhc…/….xlsx`) only works for pages that embed the asset URL in **server-rendered** HTML. **74 of 136 leaf pages** carry no asset URL in the server HTML at all — the download link is injected into the DOM by **client-side JavaScript** (the delinquency page's only inline `$.ajax` calls go to account/folder/email endpoints; the table itself is an Equifax-sourced widget rendered after load). The httpx scraper is blind to all 74.
+
+| Section | Leaf pages | 0-asset (JS-injected) |
+|---|---|---|
+| household-characteristics | 52 | 43 |
+| mortgage-and-debt | 18 | 13 |
+| housing-market-data | 46 | 9 |
+| rental-market | 20 | 9 |
+| **All** | **136** | **74** (3 are archived stubs) |
+
+The 74 are concentrated in exactly the domains RESEARCH.md flagged as the *strongest reasons to pull this surface* — demographic/income/Indigenous cuts (household-characteristics) and credit/delinquency (mortgage-and-debt). This is the unique, non-HMIP data, not filler.
+
+**Steps run.**
+1. Grepped `catalogue.py` + `src/` for mortgage/delinquency/arrears/credit → nothing (not in HMIP).
+2. Found the delinquency leaf in `static_catalogue.json` with 0 assets; counted 0-asset pages across all sections (74/136).
+3. `curl` of the delinquency page → HTTP 200, correct `<title>`, but **no `.xlsx` anywhere in the HTML**; only loader GIFs + a GTM iframe; inline `$.ajax` targets are account/folder/email only.
+4. Confirmed via human DevTools: a Download button is present on the *rendered* page, with a real `href` (Copy-link-address worked). The href lives in the post-JS DOM, not the server HTML.
+5. Built and validated a headless-render fallback (see Action) — it recovered the exact asset URL.
+6. Verified the file: `…/mortgage-delinquency-rate-ca-prov-cmas-2012-q3-2025-q4-en.xlsx` → HTTP 200, 41,129 bytes, `Last-Modified: Wed, 25 Mar 2026`. Coverage 2012-Q3 → 2025-Q4. (polars can't open it yet — no `fastexcel` in the env; parsing is a later concern.)
+
+**The URL is not constructible.** The pasted link was
+`…/mortgage-delinquency-rate-ca-prov-cmas-2012-q3-2025-q4-en.xlsx?rev=960e3a3e-…`.
+The asset slug is **abbreviated** (`ca-prov-cmas`, not the page slug `canada-provinces-cmas`), carries an **embedded date range** that shifts each release, and a **`?rev=` Sitecore GUID** cache-buster. Four guessed URLs from the page-slug convention all 404'd — confirming RESEARCH.md's "cannot construct URLs deterministically; must scrape each leaf page." The render fallback stores the clean no-`?rev=` form, which resolves fine (200).
+
+**Action taken.**
+- Added a **headless-render fallback** to `scripts/build_static_catalogue.py` (opt-in `--render`): the httpx pass runs as before, then for every 0-asset page it loads the page in headless Chromium, waits for network-idle, and regexes the live DOM (+ iframes) for the asset URL. Each leaf now records a `discovery` field (`"html"` | `"render"` | `null`). Playwright lives in a separate **`scrape` dependency group** so the headless-browser dep never touches the HMIP scraper or the default install. The script is already independent of `src/cmhc/` (the HMIP library) — the JS-rendering concern stays fully out of the HMIP path.
+- Validated on the delinquency page: render recovered the asset URL on the first try.
+- **Not yet run at scale** — the full 74-page render pass is queued, not done (see PROGRESS.md "Next steps"). This entry records the mechanism and the confirmed single case.
+
+**Implications for future work.**
+- The static catalogue is **understated by up to ~71 tables** (74 minus the 3 archived stubs) until the render pass runs. Anyone reading `static_catalogue.json` today should treat a 0-asset entry as "not yet discovered," not "no file exists."
+- This is the project's first genuine need for a headless browser — exactly the trigger PLAN.md's "On headless browsers" section reserved it for. It is scoped to this one scraper; HMIP remains a plain POST.
+- Once assets are captured, the per-table xlsx parsers are the next lift (merged title cells, multi-row headers — RESEARCH.md estimates ~10–20 lines each). Mortgage delinquency is the natural first parser given it's confirmed and small.
+
+**Refs.** Leaf page: `…/data-tables/mortgage-and-debt/mortgage-delinquency-rate-canada-provinces-cmas`. Asset: `…/mortgage-debt/mortgage-delinquency-rate-canada-provinces-cmas/mortgage-delinquency-rate-ca-prov-cmas-2012-q3-2025-q4-en.xlsx`. Scraper: `scripts/build_static_catalogue.py` (`_render_assets`, `--render`). Source attribution: Equifax (named on the CMHC page).
+
+---
+
 ### 2026-06-10 — CMHC vs StatCan name format drift (slash vs hyphen) was silently dropping 5 Ontario CSDs from the mart
 
 **Finding.** While auditing the first build of `data/marts/cmhc_rental.duckdb` (the Ontario rental data mart), 5 CMA-member Ontario CSDs known to publish rental data were absent from the mart's `geographies` table:

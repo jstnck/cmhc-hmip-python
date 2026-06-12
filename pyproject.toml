@@ -31,3 +31,6 @@ module-name = "cmhc"
 dev = [
     "pytest>=9.0.3",
 ]
+scrape = [
+    "playwright>=1.60.0",
+]

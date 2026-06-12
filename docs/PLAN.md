@@ -83,7 +83,9 @@ Real logic lives in `src/cmhc/`; scripts are thin entrypoints that wire argparse
 
 ## On headless browsers
 
-No. HMIP's `ExportTable` is a plain POST returning CSV. Open Gov and static publications are direct downloads. Add Playwright only if we hit a page that genuinely needs JS rendering.
+HMIP stays browser-free — `ExportTable` is a plain POST returning CSV; Open Gov and static publications are direct downloads.
+
+The one exception (added 2026-06-11): the **static-data-tables** surface. 74 of 136 leaf pages inject their xlsx download link via client-side JS — the asset URL is absent from the server HTML, so httpx can't see it (see DATA_DISCOVERY.md). `scripts/build_static_catalogue.py` now has an opt-in `--render` fallback (Playwright, isolated in the `scrape` dep group) that renders only those 0-asset pages. This is deliberately quarantined to the static-tables scraper — it does not touch the HMIP library (`src/cmhc/`) or the default install. Playwright is the floor; we do not add it anywhere else.
 
 ---
 
@@ -116,7 +118,7 @@ Raw is kept so we can re-parse without re-fetching. Clean is what gets queried. 
 6. **Other surveys** (Scss, Srms, Seniors, Census, Core Housing Need) at Canada + Ontario CMA scope. Srms expanded to 8 publishing Ontario CMAs (was 4) via stale-marker refresh. ✅
 7. **Sharable data mart** — single-file DuckDB extract of Ontario rental, star schema + materialized metric tables. ✅ Coverage tracked in `_meta`; rebuild via `scripts/build_dmt_rental.py`.
 8. **Ontario CT pull** — `scripts/pull_cts.py --surveys Rms,Srms`. ~230k requests, overnight at the safer concurrency. Unlocks neighbourhood-level rental. Queued.
-9. **Static data tables** (`housing-data/data-tables/`). Most of this surface (mortgage delinquency, credit scores, demographic cuts of core housing need, Indigenous housing, long-range household projections) is not served by HMIP. Sequence: URL catalogue → xlsx download → per-table parsers.
+9. **Static data tables** (`housing-data/data-tables/`). Most of this surface (mortgage delinquency, credit scores, demographic cuts of core housing need, Indigenous housing, long-range household projections) is not served by HMIP. Sequence: URL catalogue → xlsx download → per-table parsers. ✅ catalogue scraper built (`build_static_catalogue.py`, 136 leaf pages). ⏳ Render fallback added + validated on the delinquency page (2026-06-11); the 74-page `--render` pass to capture the JS-injected downloads is queued. Then xlsx parsers (mortgage delinquency first — confirmed, small). Needs `fastexcel` for polars xlsx reading (not yet a dep).
 10. **Open Gov sweep** when convenient — easy, gives national-level cross-checks.
 11. **Pair-level denylist** (`(table_id, geo)`) if the per-CMA HMIP 500 noise becomes painful as we expand provincial coverage.
 

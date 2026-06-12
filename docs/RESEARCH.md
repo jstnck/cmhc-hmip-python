@@ -89,8 +89,10 @@ four sections, with meaningful coverage NOT served by HMIP.
 **Format & storage:**
 - All `.xlsx`. No CSV, no JSON, no API.
 - Files hosted at `https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/{section}/{slug}/...`
-- URL convention is slug-based but **inconsistent** — some end `-en.xlsx`, others `-2023-en.xlsx`. Cannot construct URLs deterministically; must scrape each leaf page.
-- Asset URLs are **not in the rendered HTML** by default — they're embedded in a Sitecore data island. Grep for `assets.cmhc-schl.gc.ca/...\.xlsx` against page source works.
+- URL convention is slug-based but **inconsistent** — some end `-en.xlsx`, others `-2023-en.xlsx`, and the asset slug is sometimes *abbreviated* relative to the page slug (`ca-prov-cmas` vs `canada-provinces-cmas`) with an embedded date range + a `?rev=` Sitecore GUID. Cannot construct URLs deterministically; must scrape each leaf page. (Confirmed 2026-06-11: four guessed delinquency URLs all 404'd.)
+- Asset URLs come in **two classes** (verified 2026-06-11, see DATA_DISCOVERY.md):
+  - **HTML-embedded (~62 of 136 pages):** the asset URL is in the server-rendered HTML. A plain httpx GET + regex for `assets.cmhc-schl.gc.ca/...\.xlsx` finds it. This is what `build_static_catalogue.py`'s default pass does.
+  - **JS-injected (74 of 136 pages):** the download link is added to the DOM by client-side JavaScript and is **absent from the server HTML entirely** — httpx sees nothing. Only a headless render exposes it. Concentrated in household-characteristics (43) and mortgage-and-debt (13), i.e. the Equifax-sourced credit tables and the demographic cuts — the unique, non-HMIP data. The scraper's `--render` fallback (Playwright, `scrape` dep group) handles these.
 
 **Volume:** verified one sample at 1.6 MB. Roughly 130 × 1 MB ≈ ~100-150 MB total. Downloadable in minutes.
 

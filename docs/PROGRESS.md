@@ -74,7 +74,7 @@ Raw zips cached at `data/raw/boundaries/` to avoid re-downloading (~50 MB). Buil
 
 ### Tests
 
-34 unit tests covering catalogue, geographies (incl. Ontario CSD + CT lookups), hmip, tidy (period parsing, snapshot CSV shape, subtitle period extraction, single-geo row preservation), validity. All green.
+55 unit tests covering catalogue, geographies (incl. Ontario CSD + CT lookups), hmip, tidy (period parsing, snapshot CSV shape, subtitle period extraction, single-geo row preservation), validity. All green.
 
 ---
 
@@ -195,17 +195,18 @@ We deliberately do **not** denylist these — denylisting at the `table_id` leve
 3. **Pull remaining provinces' CMAs** — `pull_cmas.py --province NAME` for BC, Alberta, Quebec, etc. Each ~10 min at concurrency=5. Currently optional; widen scope only on explicit ask.
 
 ### Soon after
-4. **Catalogue probe sweep** — use `scripts/probe_table.py` against other dimensions with non-trivial filter sets. The bedroom-filter and slash/hyphen bugs almost certainly aren't the last stale entries.
-5. **Open Government Portal sweep** — separate `pull_opengov.py`. Direct CSV downloads, gives independent cross-check data.
-6. **Pair-level denylist** if the per-(table, CMA) 500 noise becomes painful across provinces (see issue 1b).
-7. **Srms sub-CMA validity filter** — restrict to the 8 publishing Ontario CMAs (Barrie, Hamilton, Kitchener – Cambridge – Waterloo, London, Ottawa, St. Catharines – Niagara, Toronto, Windsor). Mirrors the 2026-05-23 non-CMA-CSD optimization. See DATA_DISCOVERY.md for context.
+4. **Static data tables — render pass + first parsers.** The catalogue scraper (`build_static_catalogue.py`) is built, but 74 of 136 leaf pages inject their xlsx download via JS and show 0 assets to the httpx pass (see DATA_DISCOVERY.md 2026-06-11). A `--render` headless-browser fallback is added and validated on one page; **run it across all 74** to capture the missing downloads (`uv run --group scrape python scripts/build_static_catalogue.py --render`). Then write per-table xlsx parsers — **mortgage delinquency first** (confirmed: `…/mortgage-delinquency-rate-ca-prov-cmas-2012-q3-2025-q4-en.xlsx`, 41 KB, Canada/provinces/CMAs, Equifax-sourced). Add `fastexcel` to deps for polars xlsx reading. This unlocks the mortgage/debt + household-characteristics domains that HMIP does not serve.
+5. **Catalogue probe sweep** — use `scripts/probe_table.py` against other dimensions with non-trivial filter sets. The bedroom-filter and slash/hyphen bugs almost certainly aren't the last stale entries.
+6. **Open Government Portal sweep** — separate `pull_opengov.py`. Direct CSV downloads, gives independent cross-check data.
+7. **Pair-level denylist** if the per-(table, CMA) 500 noise becomes painful across provinces (see issue 1b).
+8. **Srms sub-CMA validity filter** — restrict to the 8 publishing Ontario CMAs (Barrie, Hamilton, Kitchener – Cambridge – Waterloo, London, Ottawa, St. Catharines – Niagara, Toronto, Windsor). Mirrors the 2026-05-23 non-CMA-CSD optimization. See DATA_DISCOVERY.md for context.
 
 ### Later
-8. **Geography vintage tagging** — record census year per row to flag boundary changes (matters more once we have CT data spanning multiple census vintages).
-9. **StatCan-sourced concordance catalogue** — vintage-tagged CSD → CMA / CD / Province crosswalk from StatCan SGC/GAF. Would replace the current ad-hoc lookups and let the mart populate `cma` for Census-Agglomeration CSDs that currently have `cma=NULL`. Multi-week effort; deferred.
-10. **Neighbourhoods + Survey Zones** as first-class Geography sets (data already in `cts_ontario.csv` via NBHDCODE / ZONECODE columns).
-11. **Other-domain data marts** — Scss (housing starts), Census, Core Housing Need each warrant their own DuckDB mart following the rental mart's pattern. On demand.
-12. **Static publications crawler** — only if HMIP + Open Gov together leave gaps worth filling.
+9. **Geography vintage tagging** — record census year per row to flag boundary changes (matters more once we have CT data spanning multiple census vintages).
+10. **StatCan-sourced concordance catalogue** — vintage-tagged CSD → CMA / CD / Province crosswalk from StatCan SGC/GAF. Would replace the current ad-hoc lookups and let the mart populate `cma` for Census-Agglomeration CSDs that currently have `cma=NULL`. Multi-week effort; deferred.
+11. **Neighbourhoods + Survey Zones** as first-class Geography sets (data already in `cts_ontario.csv` via NBHDCODE / ZONECODE columns).
+12. **Other-domain data marts** — Scss (housing starts), Census, Core Housing Need each warrant their own DuckDB mart following the rental mart's pattern. On demand.
+13. **Static publications crawler** — only if HMIP + Open Gov together leave gaps worth filling.
 
 ### Done since last revision
 - ✅ Massive CSD-level Rms recovery (2026-06-09): re-pulled with `--refresh-empty-days 0`, +9,326 new (table, CSD) combos returning data, +461k rows in the parquet.

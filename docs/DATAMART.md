@@ -24,9 +24,11 @@ This doc covers:
 
 - Ontario province (where the underlying table publishes at province level)
 - 42 Ontario CMAs in the data (8 of them publish Srms; the rest are Rms-only)
-- 147 CMA-member Ontario CSDs with at least one published value, plus ~20 placeholder rows for CMA-members CMHC publishes nothing for
-- ~22 additional Ontario CSDs whose CMHC publication is at the CSD level but who belong to Census Agglomerations rather than CMAs — these rows have `cma = NULL` (see column conventions)
+- 147 Ontario CSDs with at least one published value, plus 20 placeholder rows for CMA-member CSDs CMHC publishes nothing for
+- Of those 147, 22 belong to Census Agglomerations rather than CMAs — their CMHC publication is at the CSD level but they have no parent CMA, so these rows carry `cma = NULL` (see column conventions). They are a subset of the 147, not additional to it.
 - **No Census Tracts.** ~2,382 Ontario CTs exist; the CT pull is queued in PROGRESS.md but not yet run. Neighbourhood-level rental is unavailable in this mart.
+
+Total: **210 geographies** — 1 province + 42 CMAs + 147 CSDs with data + 20 placeholder CSDs.
 
 **Out of scope:** Canada and other provinces are dropped to keep the mart Ontario-focused; query the project's full parquet archive directly if you need national comparison.
 
@@ -128,28 +130,36 @@ Common column shape (illustrated for `average_rent_by_bedroom`):
 | `is_suppressed` | BOOLEAN |
 | `source_survey`, `table_id`, `updated_at` | VARCHAR, VARCHAR, TIMESTAMP |
 
-**Expected table list** (final names confirmed after build — see `metrics` and `SHOW TABLES`):
+**Table list** (25 materialized metric tables; authoritative source is `SHOW TABLES` + `SELECT * FROM metrics`):
 
-Rms:
+Rms (18):
 - `vacancy_rate_by_bedroom`
 - `vacancy_rate_by_year_of_construction`
 - `vacancy_rate_by_structure_size`
+- `vacancy_rate_by_rent_range`
+- `vacancy_rate_by_rent_quartile`
 - `availability_rate_by_bedroom`
 - `availability_rate_by_year_of_construction`
+- `availability_rate_by_structure_size`
 - `average_rent_by_bedroom`
 - `average_rent_by_year_of_construction`
+- `average_rent_by_structure_size`
+- `average_rent_change_by_bedroom`
 - `median_rent_by_bedroom`
+- `median_rent_by_year_of_construction`
+- `median_rent_by_structure_size`
 - `rental_universe_by_bedroom`
-- `rent_distribution_by_range`
-- `rent_distribution_by_quartile`
+- `rental_universe_by_year_of_construction`
+- `rental_universe_by_structure_size`
 
-Srms:
+Srms (7):
 - `condo_vacancy_rate_by_structure_size`
 - `condo_average_rent_by_bedroom`
 - `condo_universe_by_structure_size`
-- `percent_condo_used_as_rental`
-- `other_secondary_rental_universe`
-- `other_secondary_rental_average_rent`
+- `rental_condo_universe_by_structure_size`
+- `percent_condo_used_as_rental_by_structure_size`
+- `other_secondary_rental_universe_by_dwelling_type`
+- `other_secondary_rental_average_rent_by_dwelling_type`
 
 ---
 
