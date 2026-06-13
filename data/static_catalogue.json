@@ -3,7 +3,15 @@
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/adequacy-suitability-affordability-statistics-visible-minority-groups",
       "title": "Adequacy, Suitability and Affordability Statistics for Visible Minority Groups",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/adequacy-suitability-affordability-statistics-visible-minority-groups/adequacy-suitability-affordability-statistics-visible-minority-groups-2001-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 213919,
+          "last_modified": "Mon, 28 Apr 2025 18:18:11 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
@@ -17,24 +25,49 @@
           "last_modified": "Sun, 24 Nov 2024 03:28:58 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/characteristics-households-core-housing-need-canada-pt-cmas",
       "title": "Characteristics of Households in Core Housing Need by Tenure",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/characteristics-households-core-housing-need-canada-pt-cmas/characteristics-households-core-housing-need-canada-pt-cmas-2006-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 1338529,
+          "last_modified": "Mon, 28 Apr 2025 18:19:10 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/characteristics-on-reserve-indigenous-households-tenure",
       "title": "Characteristics of On-Reserve Indigenous Households by Tenure",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/characteristics-on-reserve-indigenous-households-tenure/characteristics-on-reserve-indigenous-households-tenure-2011-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 350538,
+          "last_modified": "Mon, 28 Apr 2025 20:16:59 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/core-housing-need-status-selected-characteristics-gender",
       "title": "Characteristics of Population in Core Housing Need by Gender",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/core-housing-need-status-selected-characteristics-gender/core-housing-need-status-selected-characteristics-gender-2006-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 2028412,
+          "last_modified": "Mon, 28 Apr 2025 20:17:46 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
@@ -48,30 +81,63 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:32 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/home-equity-net-worth-tenure-age-group-canada",
       "title": "Home Equity and Net Worth by Tenure and Age Group: Canada",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table-22_en_w.xls",
+          "status": 200,
+          "size_bytes": 40960,
+          "last_modified": "Mon, 25 Nov 2024 09:37:39 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/home-equity-net-worth-tenure-canada-provinces",
       "title": "Home Equity and Net Worth by Tenure: Canada and Provinces",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table_23_homeequity_net_worth_canada_provinces_en_w.xls",
+          "status": 200,
+          "size_bytes": 47616,
+          "last_modified": "Mon, 25 Nov 2024 09:38:35 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/household-characteristics-visible-minority-groups",
       "title": "Household Characteristics of Visible Minority Groups",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/household-characteristics-visible-minority-groups/household-characteristics-visible-minority-groups-2001-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 538052,
+          "last_modified": "Tue, 29 Apr 2025 20:59:58 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/household-count-size-age-maintainer-tenure",
       "title": "Household Count and Size by Age of Maintainer and Tenure",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/household-count-size-age-maintainer-tenure/household-count-size-by-age-maintainer-tenure-1971-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 457299,
+          "last_modified": "Mon, 28 Apr 2025 20:20:47 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
@@ -85,66 +151,147 @@
           "last_modified": "Mon, 25 Nov 2024 09:38:25 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/household-income-shelter-cost-to-income-ratio-visible-minority-groups-core-need-status",
       "title": "Household Income, Shelter Costs and Shelter-Cost-to-Income Ratio (STIRs) of Visible Minority Groups by Core Need Status",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/household-income-costs-visible-minority-groups/household-income-costs-visible-minority-groups-2001-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 1671003,
+          "last_modified": "Tue, 29 Apr 2025 20:59:28 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/households-type-tenure",
       "title": "Households by Type and Tenure",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/households-type-tenure/households-type-tenure-1971-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 204582,
+          "last_modified": "Mon, 28 Apr 2025 20:31:41 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/housing-conditions-aboriginal-households-outside-reserves-canada",
       "title": "Indigenous Households Living Outside Reserves: Canada",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/indigenous-housing/housing-conditions-aboriginal-households-outside-reserves-canada-2016-2001-en.xls",
+          "status": 200,
+          "size_bytes": 186368,
+          "last_modified": "Tue, 15 Apr 2025 19:12:19 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/housing-conditions-indigenous-households-living-off-reserve",
       "title": "Housing Conditions of Indigenous Households Living Off Reserve",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/housing-conditions-indigenous-households-living-off-reserve/housing-conditions-indigenous-households-living-off-reserve-2006-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 68729,
+          "last_modified": "Mon, 28 Apr 2025 20:32:26 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/housing-conditions-indigenous-households-living-on-reserve",
       "title": "Housing Conditions of Indigenous Households Living on Reserve",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/housing-conditions-indigenous-households-living-on-reserve/housing-conditions-indigenous-households-living-on-reserve-2006-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 37764,
+          "last_modified": "Mon, 28 Apr 2025 20:32:59 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/housing-profile-one-person-one-parent-households-gender",
       "title": "Housing Profile of One-person and One-parent Households by Gender",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/housing-profile-one-person-one-parent-households-gender/housing-profile-one-person-one-parent-households-gender-2006-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 519637,
+          "last_modified": "Mon, 28 Apr 2025 20:37:09 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/incidence-urban-households-core-housing-need",
       "title": "Incidence (%) and Number of Households in Core Housing Need 2012 &ndash; 2023",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/incidence-urban-households-core-housing-need/incidence-number-households-core-housing-need-2016-2023-en.xlsx",
+          "status": 200,
+          "size_bytes": 29235,
+          "last_modified": "Sun, 22 Jun 2025 17:01:24 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/indigenous-households-canada-location-tenure",
       "title": "Indigenous Households in Canada by Location and Tenure",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/indigenous-households-canada-location-tenure/indigenous-households-canada-location-tenure-2006-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 43404,
+          "last_modified": "Mon, 28 Apr 2025 20:39:48 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/indigenous-population-canada-indigenous-identity-location-tenure",
       "title": "Indigenous Population in Canada by Indigenous Identity, Location and Tenure",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/indigenous-population-canada-indigenous-identity-location-tenure/indigenous-population-canada-indigenous-identity-location-tenure-2006-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 146600,
+          "last_modified": "Mon, 28 Apr 2025 20:40:50 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/number-households-canada-provinces-select-metropolitan-areas",
       "title": "Number of Households: Canada, Provinces and Select Metropolitan Areas",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/number-households-ca-provinces-metropolitan-areas-2006-2015.xlsx",
+          "status": 200,
+          "size_bytes": 19972,
+          "last_modified": "Mon, 25 Nov 2024 09:39:02 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
@@ -158,12 +305,21 @@
           "last_modified": "Mon, 25 Nov 2024 09:39:00 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/number-households-core-housing-need",
       "title": "Number of Households in Core Housing Need",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/number-households-core-housing-need/number-households-core-housing-need-1991-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 93079,
+          "last_modified": "Mon, 28 Apr 2025 20:41:32 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
@@ -177,6 +333,7 @@
           "last_modified": "Mon, 25 Nov 2024 09:39:27 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
@@ -190,6 +347,7 @@
           "last_modified": "Mon, 25 Nov 2024 09:39:29 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
@@ -203,24 +361,49 @@
           "last_modified": "Mon, 25 Nov 2024 09:49:05 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/number-owner-households-owner-canada-provinces-cmas",
       "title": "Number of Owner Households by Owner: Canada, Provinces and CMAs",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/number-owner-households-owner-ca-provinces-metropolitan-areas-2006-2015.xlsx",
+          "status": 200,
+          "size_bytes": 16354,
+          "last_modified": "Mon, 25 Nov 2024 09:38:50 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/number-renter-households-renter-canada-provinces-cmas",
       "title": "Number of Renter Households by Renter: Canada, Provinces and CMAs",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/number-renter-households-renter-ca-provinces-metropolitan-areas-2006-2015.xlsx",
+          "status": 200,
+          "size_bytes": 16247,
+          "last_modified": "Mon, 25 Nov 2024 09:39:21 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/number-urban-households-core-housing-need",
       "title": "Number of Urban Households in Core Housing Need 2012 \u2013 2019",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/number-urban-households-core-housing-need/number-urban-households-core-housing-need-2012-2019-en.xlsx",
+          "status": 200,
+          "size_bytes": 26910,
+          "last_modified": "Sun, 24 Nov 2024 03:29:14 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
@@ -234,102 +417,231 @@
           "last_modified": "Sun, 24 Nov 2024 03:29:38 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/ownership-rates-canada-provinces-territories-metropolitan-areas",
       "title": "Ownership Rates: Canada, Provinces, Territories and Metropolitan Areas",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table-10-ownership_en_w.xls",
+          "status": 200,
+          "size_bytes": 82432,
+          "last_modified": "Mon, 25 Nov 2024 09:36:57 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/population-senior-led-households",
       "title": "Population in Senior-led Households",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/population-senior-led-households/population-senior-led-households-2011-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 5064975,
+          "last_modified": "Mon, 28 Apr 2025 20:43:27 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/population-youth-led-households",
       "title": "Population in Youth-Led Households",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/population-youth-led-households/population-youth-led-households-2011-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 1882608,
+          "last_modified": "Mon, 28 Apr 2025 20:43:55 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-average-after-tax-household-income-quintiles",
       "title": "Real Average After-Tax Household Income Quintiles by Tenure, 2006 \u2013 2023",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/real-average-after-tax-household-income-quintiles/average-household-after-tax-income-tenure-quntile-2006-2023-en.xlsx",
+          "status": 200,
+          "size_bytes": 57785,
+          "last_modified": "Thu, 19 Jun 2025 20:07:23 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-average-before-tax-household-income-quintiles",
       "title": "Real Average Before-tax Household Income Quintiles by tenure, 2006 &ndash; 2023",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/real-average-before-tax-household-income-quintiles/average-household-before-tax-income-tenure-quntile-2006-2023-en.xlsx",
+          "status": 200,
+          "size_bytes": 57998,
+          "last_modified": "Sun, 22 Jun 2025 16:50:05 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-average-household-income-after-taxes-tenure",
       "title": "Real Average Household Income (After-Taxes), by Tenure, 2006 &ndash; 2023",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/real-average-household-income-after-taxes-tenure/average-household-after-tax-income-by-tenure-2006-2023-en.xlsx",
+          "status": 200,
+          "size_bytes": 44182,
+          "last_modified": "Sun, 22 Jun 2025 16:39:44 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-average-total-household-income-before-taxes",
       "title": "Real Average Household Income (Before-tax) by Tenure, 2006 &ndash; 2023",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/real-average-total-household-income-before-taxes/average-household-before-tax-income-by-tenure-2006-2023-en.xlsx",
+          "status": 200,
+          "size_bytes": 44855,
+          "last_modified": "Sun, 22 Jun 2025 17:17:02 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-median-after-tax-household-income-1990-2011",
       "title": "Real Median After-Tax Household Income (1990\u20132011)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table_19_en_income_aftertax_w.xlsx",
+          "status": 200,
+          "size_bytes": 19571,
+          "last_modified": "Mon, 25 Nov 2024 09:39:48 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-median-after-tax-household-income-owner-households-1990-2011",
       "title": "Real Median After-Tax Household Income: Owner Households (1990\u20132011)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table19_en_income_after-tax_owner_w.xlsx",
+          "status": 200,
+          "size_bytes": 19589,
+          "last_modified": "Mon, 25 Nov 2024 09:38:55 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-median-after-tax-household-income-renter-households-1990-2011",
       "title": "Real Median After-Tax Household Income: Renter Households (1990\u20132011)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table19_en_income_after-tax_renter_w.xlsx",
+          "status": 200,
+          "size_bytes": 20677,
+          "last_modified": "Mon, 25 Nov 2024 09:39:22 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-median-household-income-after-tax-tenure",
       "title": "Real Median Household Income (After-Tax), by Tenure, 2006 &ndash; 2023",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/real-median-household-income-after-tax-tenure/real-median-household-income-after-tax-tenure-2006-2023-en.xlsx",
+          "status": 200,
+          "size_bytes": 44359,
+          "last_modified": "Sun, 22 Jun 2025 22:17:50 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-median-total-household-income-before-taxes",
       "title": "Real Median Total Household Income (Before Taxes), by Tenure, 2006 &ndash; 2023",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/real-median-total-household-income-before-taxes/median-household-before-tax-income-by-tenure-2006-2023-en.xlsx",
+          "status": 200,
+          "size_bytes": 44497,
+          "last_modified": "Tue, 05 Aug 2025 12:12:40 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-median-total-household-income-before-taxes-1990-2011",
       "title": "Real Median Total Household Income (Before Taxes) (1990\u20132011)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table19_en_income_before-tax_w-2.xlsx",
+          "status": 200,
+          "size_bytes": 20814,
+          "last_modified": "Mon, 25 Nov 2024 09:38:57 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-median-total-household-income-before-taxes-owners-1990-2011",
       "title": "Real Median Total Household Income (Before Taxes): Owners (1990\u20132011)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table19_en_income_before-tax_owner_w.xlsx",
+          "status": 200,
+          "size_bytes": 20937,
+          "last_modified": "Mon, 25 Nov 2024 09:39:03 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/real-median-total-household-income-before-taxes-renters-1990-2011",
       "title": "Real Median Total Household Income (Before Taxes): Renters (1990\u20132011)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table19_fr_before-tax_renter_w.xlsx",
+          "status": 200,
+          "size_bytes": 20864,
+          "last_modified": "Mon, 25 Nov 2024 09:39:22 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/senior-led-households",
       "title": "Senior-led Households",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/senior-led-households/senior-led-households-2011-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 5132927,
+          "last_modified": "Tue, 29 Apr 2025 20:58:45 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
@@ -343,36 +655,77 @@
           "last_modified": "Sun, 24 Nov 2024 03:29:14 GMT"
         }
       ],
+      "discovery": "html",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/total-population-population-core-housing-need-age-by-sex",
       "title": "Total Population and Population in Core Housing Need by Age and Sex",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/age-gender-total.xls",
+          "status": 200,
+          "size_bytes": 46080,
+          "last_modified": "Mon, 25 Nov 2024 09:38:37 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/total-population-population-core-housing-need-by-sex-tenure",
       "title": "Total Population and Population in Core Housing Need by Sex and Tenure",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/gender-tenure-total.xls",
+          "status": 200,
+          "size_bytes": 31744,
+          "last_modified": "Mon, 25 Nov 2024 09:36:49 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/total-population-population-core-housing-need-income-by-sex",
       "title": "Total Population and Population in Core Housing Need by Income and Sex",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/income-gender-total.xls",
+          "status": 200,
+          "size_bytes": 36864,
+          "last_modified": "Mon, 25 Nov 2024 09:38:12 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/total-population-population-living-households-core-housing-need-gender-living-arrangement",
       "title": "Total Population and Population Living in Households in Core Housing Need by Gender and Living Arrangement",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/population-living-households-core-housing-need-gender-living-arrangement/population-living-households-core-housing-need-gender-living-arrangement-2001-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 72475,
+          "last_modified": "Mon, 28 Apr 2025 20:42:04 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/household-characteristics/youth-led-households",
       "title": "Youth-Led Households",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/household-characteristics/youth-led-households/youth-led-households-2011-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 3832201,
+          "last_modified": "Mon, 28 Apr 2025 20:45:07 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "household-characteristics"
     },
     {
@@ -380,12 +733,13 @@
       "title": "Absorbed Units by Price Range",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/absorbed-units-price-range/2026/absorbed-units-price-range-cma-all-dwelling-types-2026-q1-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/absorbed-units-price-range/2026/absorbed-units-price-range-canada-provinces-all-dwelling-types-2026-04-en.xlsx",
           "status": 200,
-          "size_bytes": 372340,
-          "last_modified": "Wed, 29 Apr 2026 11:13:56 GMT"
+          "size_bytes": 38375,
+          "last_modified": "Wed, 27 May 2026 13:12:27 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -399,6 +753,7 @@
           "last_modified": "Tue, 28 Apr 2026 12:56:10 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -412,6 +767,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:29:27 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -425,6 +781,7 @@
           "last_modified": "Tue, 28 Apr 2026 17:26:38 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -432,12 +789,13 @@
       "title": "Apartment Starts and Completions by Canada, provinces, large cities",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/apartment-starts-completions-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/apartment-starts-completions-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 39559,
-          "last_modified": "Fri, 08 May 2026 18:44:16 GMT"
+          "size_bytes": 37541,
+          "last_modified": "Fri, 29 May 2026 14:38:17 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -451,6 +809,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:09 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -464,6 +823,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:29:39 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -477,18 +837,21 @@
           "last_modified": "Sun, 24 Nov 2024 03:30:51 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/average-months-unabsorbed-life-inventory-dwelling-type",
       "title": "Average Months Unabsorbed and Life of Inventory: By Dwelling Type",
       "assets": [],
+      "discovery": null,
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/average-months-unabsorbed-life-inventory-intended-market",
       "title": "Average Months Unabsorbed and Life of Inventory: By Intended Market",
       "assets": [],
+      "discovery": null,
       "section": "housing-market-data"
     },
     {
@@ -502,12 +865,21 @@
           "last_modified": "Thu, 16 Apr 2026 19:51:51 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/conversions-demolitions-select-ontario-municipalities",
       "title": "Conversions and Demolitions (Select Ontario Municipalities)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/conversions-demolitions-select-ontario-municipalities/conversions-demolitions-select-ontario-municipalities-2025-en.xlsx",
+          "status": 200,
+          "size_bytes": 57110,
+          "last_modified": "Fri, 10 Apr 2026 15:19:41 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "housing-market-data"
     },
     {
@@ -515,12 +887,13 @@
       "title": "Development Charges",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/development-charges/development-charges-data-tables-2025-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/development-charges/development-charges-data-tables-2026--en.xlsx",
           "status": 200,
-          "size_bytes": 115039,
-          "last_modified": "Mon, 15 Dec 2025 15:22:09 GMT"
+          "size_bytes": 174285,
+          "last_modified": "Tue, 02 Jun 2026 16:11:21 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -534,6 +907,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:29:40 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -547,6 +921,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:09 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -554,12 +929,13 @@
       "title": "Housing Market Tables: Selected South Central Ontario",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-market-tables-selected-south-central-on/2026/housing-market-tables-selected-south-central-on-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-market-tables-selected-south-central-on/2026/housing-market-tables-selected-south-central-on-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 35018,
-          "last_modified": "Tue, 28 Apr 2026 13:38:15 GMT"
+          "size_bytes": 35084,
+          "last_modified": "Wed, 27 May 2026 13:18:30 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -573,6 +949,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:47 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -586,6 +963,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:30:31 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -599,6 +977,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:30:52 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -612,6 +991,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:28 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -619,12 +999,13 @@
       "title": "Market Absorption Statistics by Canada, Provinces, CMAs and large CAs",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/market-absorption-statistics-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/market-absorption-statistics-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 47476,
-          "last_modified": "Fri, 08 May 2026 18:44:19 GMT"
+          "size_bytes": 47708,
+          "last_modified": "Fri, 29 May 2026 14:38:19 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -632,12 +1013,13 @@
       "title": "Market Absorption Statistics by Census Subdivision",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/market-absorption-statistics-csd-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/market-absorption-statistics-csd-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 50982,
-          "last_modified": "Fri, 08 May 2026 18:44:18 GMT"
+          "size_bytes": 50968,
+          "last_modified": "Fri, 29 May 2026 14:38:19 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -651,6 +1033,7 @@
           "last_modified": "Fri, 15 May 2026 12:18:23 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -664,6 +1047,7 @@
           "last_modified": "Fri, 17 Apr 2026 12:10:44 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -671,12 +1055,13 @@
       "title": "Prairies Residential Construction Data Digest",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/prairies-residential-construction-data-digest/2026/housing-market-tables-prairie-residential-construction-digest-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/prairies-residential-construction-data-digest/2026/housing-market-tables-prairie-residential-construction-digest-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 174547,
-          "last_modified": "Tue, 28 Apr 2026 13:39:59 GMT"
+          "size_bytes": 176510,
+          "last_modified": "Wed, 27 May 2026 13:23:17 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -690,6 +1075,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:08 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -703,6 +1089,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:23 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -716,19 +1103,21 @@
           "last_modified": "Fri, 08 May 2026 18:44:17 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/residential-building-permits-issued-not-started-pending-starts-units",
-      "title": "Residential Building Permits Issued but Not Started (Pending Starts Units)",
+      "title": "Approved Units Awaiting Housing Start (Pending Starts Units)",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/residential-building-permits-issued-not-started-pending-starts-units/2026/residential-building-permits-issued-not-started-pending-starts-units-2026-03-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/residential-building-permits-issued-not-started-pending-starts-units/2026/residential-building-permits-issued-not-started-pending-starts-units-2026-04-en.xlsx",
           "status": 200,
-          "size_bytes": 23775,
-          "last_modified": "Thu, 30 Apr 2026 11:00:43 GMT"
+          "size_bytes": 22811,
+          "last_modified": "Fri, 29 May 2026 20:15:18 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -736,12 +1125,13 @@
       "title": "Residential Conversions and Demolitions Statistics",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/conversions-demolitions-census-subdivisions-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/conversions-demolitions-census-subdivisions-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 55554,
-          "last_modified": "Fri, 08 May 2026 18:44:19 GMT"
+          "size_bytes": 54783,
+          "last_modified": "Fri, 29 May 2026 14:38:20 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -749,12 +1139,13 @@
       "title": "Revised Housing Starts",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/revised-housing-starts/2025/revised-housing-starts-csd-dwelling-type-q4-2025-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/revised-housing-starts/2026/revised-housing-starts-csd-dwelling-type-q1-2026-en.xlsx",
           "status": 200,
-          "size_bytes": 117349,
-          "last_modified": "Mon, 23 Mar 2026 17:17:37 GMT"
+          "size_bytes": 116471,
+          "last_modified": "Tue, 02 Jun 2026 12:02:37 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -762,12 +1153,13 @@
       "title": "Revised Residential Conversions and Demolitions",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/revised-residential-conversions-demolitions/2025/revised-residential-conversion-demolition-starts-csd-modification-type-q4-2025-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/revised-residential-conversions-demolitions/2026/revised-residential-conversion-demolition-starts-csd-modification-type-q1-2026-en.xlsx",
           "status": 200,
-          "size_bytes": 62048,
-          "last_modified": "Mon, 23 Mar 2026 17:15:57 GMT"
+          "size_bytes": 61783,
+          "last_modified": "Tue, 02 Jun 2026 12:01:32 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -775,12 +1167,13 @@
       "title": "Seasonally-adjusted Starts (Canada and provinces)",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/seasonally-adjusted-starts-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/seasonally-adjusted-starts-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 49516,
-          "last_modified": "Fri, 08 May 2026 18:44:17 GMT"
+          "size_bytes": 34231,
+          "last_modified": "Fri, 29 May 2026 14:38:18 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -788,12 +1181,13 @@
       "title": "Starts and Completions by Intended Market (Canada, provinces)",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/starts-completions-intended-market-provincial-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/starts-completions-intended-market-provincial-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 49077,
-          "last_modified": "Fri, 08 May 2026 18:44:16 GMT"
+          "size_bytes": 37837,
+          "last_modified": "Fri, 29 May 2026 14:38:17 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -801,12 +1195,13 @@
       "title": "Starts and Completions by Intended Market by cities",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/starts-completions--intended-market-cma-ca-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/starts-completions--intended-market-cma-ca-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 78187,
-          "last_modified": "Fri, 08 May 2026 18:44:17 GMT"
+          "size_bytes": 78442,
+          "last_modified": "Fri, 29 May 2026 14:38:18 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -814,12 +1209,13 @@
       "title": "Starts, Completions and Under Construction by Census Subdivisions",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/starts-completions-under-construction-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/starts-completions-under-construction-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 121252,
-          "last_modified": "Fri, 08 May 2026 18:44:19 GMT"
+          "size_bytes": 108592,
+          "last_modified": "Fri, 29 May 2026 14:38:20 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -827,12 +1223,13 @@
       "title": "Starts, Completions and Units Under Construction by Geography",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/march/provincial-starts-completions-dwelling-type-03-26-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/housing-information-monthly/2026/april/provincial-starts-completions-dwelling-type-04-26-en.xlsx",
           "status": 200,
-          "size_bytes": 47013,
-          "last_modified": "Fri, 08 May 2026 18:44:18 GMT"
+          "size_bytes": 43638,
+          "last_modified": "Fri, 29 May 2026 14:38:18 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -840,48 +1237,55 @@
       "title": "Unabsorbed Units by Price Range",
       "assets": [
         {
-          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/unabsorbed-units-by-price-range/2026/unabsorbed-units-price-range-cma-all-dwelling-types-2026-q1-en.xlsx",
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/housing-market-data/unabsorbed-units-by-price-range/2026/unabsorbed-units-price-range-canada-provinces-all-dwelling-types-2026-04-en.xlsx",
           "status": 200,
-          "size_bytes": 372602,
-          "last_modified": "Wed, 29 Apr 2026 11:16:02 GMT"
+          "size_bytes": 38811,
+          "last_modified": "Wed, 27 May 2026 13:14:33 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/units-absorbed-dwelling-type",
       "title": "Units Absorbed: By Dwelling Type",
       "assets": [],
+      "discovery": null,
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/units-absorbed-intended-market",
       "title": "Units Absorbed: By Intended Market",
       "assets": [],
+      "discovery": null,
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/units-unabsorbed-dwelling-type",
       "title": "Units Unabsorbed: By Dwelling Type",
       "assets": [],
+      "discovery": null,
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/units-unabsorbed-for-more-than-one-month-dwelling-type",
       "title": "Units Unabsorbed for More than One Month: By Dwelling Type",
       "assets": [],
+      "discovery": null,
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/units-unabsorbed-for-more-than-one-month-intended-market",
       "title": "Units Unabsorbed for More than One Month: By Intended Market",
       "assets": [],
+      "discovery": null,
       "section": "housing-market-data"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/housing-market-data/units-unabsorbed-intended-market",
       "title": "Units Unabsorbed: By Intended Market",
       "assets": [],
+      "discovery": null,
       "section": "housing-market-data"
     },
     {
@@ -895,6 +1299,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:23 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -908,6 +1313,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:33:21 GMT"
         }
       ],
+      "discovery": "html",
       "section": "housing-market-data"
     },
     {
@@ -921,42 +1327,91 @@
           "last_modified": "Wed, 25 Mar 2026 19:21:07 GMT"
         }
       ],
+      "discovery": "html",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/average-scheduled-monthly-payments-new-mortgage-loans",
       "title": "Average Scheduled Monthly Payments for New Mortgage Loans",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/mortgage-debt/average-scheduled-monthly-payments-new-mortgage-loans/average-scheduled-monthly-payments-new-mortgage-loans-ca-prov-cmas-2012-q3-2025-q4-en.xlsx",
+          "status": 200,
+          "size_bytes": 43098,
+          "last_modified": "Wed, 25 Mar 2026 19:24:27 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/average-value-new-mortgage-loans-canada-provinces-cmas",
       "title": "Average Value of New Mortgage Loans: Canada, Provinces and CMAs",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/mortgage-debt/average-value-new-mortgage-loans-canada-provinces-cmas/average-value-new-mortgage-loans-ca-prov-cmas-2012-q3-2025-q4-en.xlsx",
+          "status": 200,
+          "size_bytes": 55875,
+          "last_modified": "Wed, 25 Mar 2026 19:26:45 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/canadian-us-mortgage-arrears-foreclosure-rates-archived",
       "title": "Canadian and U.S. Mortgage Arrears and Foreclosure Rates (Archived)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table_31_2014_w_en.xlsx",
+          "status": 200,
+          "size_bytes": 215583,
+          "last_modified": "Mon, 25 Nov 2024 09:38:38 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/canadian-us-residential-mortgage-arrears-foreclosure-rates",
       "title": "Canadian and U.S. Residential Mortgage Arrears and Foreclosure Rates",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/xls/data-tables/canadian-and-us-residential-mortgage-arrears-and-foreclosure-rates/canadian-us-residential-mortgage-arrears-foreclosure-rates-2002-2018-q1-en.xlsx",
+          "status": 200,
+          "size_bytes": 35683,
+          "last_modified": "Mon, 25 Nov 2024 09:48:06 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/cmhc-mortgage-loan-insurance-highlights",
       "title": "CMHC Mortgage Loan Insurance Highlights",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/xls/data-tables/cmhc-mortgage-loan-insurance-highlights/cmhc-mortgage-loan-insurance-highlights-2002-2017-q4-en.xlsx",
+          "status": 200,
+          "size_bytes": 24339,
+          "last_modified": "Mon, 25 Nov 2024 09:48:11 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/cmhc-mortgage-loan-insurance-highlights-2001-2013-archived",
       "title": "CMHC Mortgage Loan Insurance Highlights: 2001\u20132013 (Archived)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table_25_2014_w_en.xlsx",
+          "status": 200,
+          "size_bytes": 13675,
+          "last_modified": "Mon, 25 Nov 2024 09:38:55 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
@@ -970,36 +1425,77 @@
           "last_modified": "Wed, 25 Mar 2026 19:29:27 GMT"
         }
       ],
+      "discovery": "html",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/mortgage-delinquency-rate-canada-provinces-cmas",
       "title": "Mortgage Delinquency Rate: Canada, Provinces and CMAs",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/mortgage-debt/mortgage-delinquency-rate-canada-provinces-cmas/mortgage-delinquency-rate-ca-prov-cmas-2012-q3-2025-q4-en.xlsx",
+          "status": 200,
+          "size_bytes": 41129,
+          "last_modified": "Wed, 25 Mar 2026 19:34:40 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/national-mortgage-market-highlights-canada-2001-2013-archived",
       "title": "National Mortgage Market Highlights: Canada, 2001\u20132013 (Archived)",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/table_24_2014_w_en.xlsx",
+          "status": 200,
+          "size_bytes": 17567,
+          "last_modified": "Mon, 25 Nov 2024 09:39:31 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/new-mortgage-holders-type-canada-provinces",
       "title": "New Mortgage Holders by Type: Canada and Provinces",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/xls/data-tables/new-mortgage-holders-type-canada-provinces/new-mortgage-holders-type-canada-provinces-2016-2017-en.xlsx",
+          "status": 200,
+          "size_bytes": 26434,
+          "last_modified": "Mon, 25 Nov 2024 09:49:02 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/new-mortgage-holders-type-cmas",
       "title": "New Mortgage Holders by Type: CMAs",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sf/project/cmhc/xls/data-tables/new-mortgage-holders-type-cma/new-mortgage-holders-type-census-metropolitan-areas-2015-2017-en.xlsx",
+          "status": 200,
+          "size_bytes": 96901,
+          "last_modified": "Mon, 25 Nov 2024 09:48:15 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/proportion-consumers-holding-credit-product-canada",
       "title": "Proportion of Consumers Holding a Credit Product, Canada",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/mortgage-debt/proportion-consumers-holding-credit-product/proportion-consumers-holding-credit-product-canada-2025-q4-en.xlsx",
+          "status": 200,
+          "size_bytes": 29955,
+          "last_modified": "Wed, 25 Mar 2026 19:37:13 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
@@ -1013,6 +1509,7 @@
           "last_modified": "Wed, 25 Mar 2026 19:42:23 GMT"
         }
       ],
+      "discovery": "html",
       "section": "mortgage-and-debt"
     },
     {
@@ -1026,18 +1523,35 @@
           "last_modified": "Wed, 25 Mar 2026 19:40:07 GMT"
         }
       ],
+      "discovery": "html",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/residential-mortgage-credit-outstanding-financial-institution-type",
       "title": "Residential Mortgage Credit Outstanding by Financial Institution Type",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/data-research/data-tables/residential-mortgage-credit-outstanding-financial-institution-type/2020/residential-mortgage-credit-outstanding-financial-institution-type-2002-2020-q3-en.xlsx",
+          "status": 200,
+          "size_bytes": 36761,
+          "last_modified": "Sun, 24 Nov 2024 03:15:19 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/mortgage-and-debt/share-new-mortgage-holders-with-credit-score-below-660",
       "title": "Share of New Mortgage Holders with Credit Score Below 660",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/mortgage-debt/share-new-mortgage-holders-with-credit-score-below-660/share-new-mortgage-holders-with-credit-score-below-660-ca-prov-cmas-2012-q3-2025-q4-en.xlsx",
+          "status": 200,
+          "size_bytes": 42239,
+          "last_modified": "Wed, 25 Mar 2026 19:44:10 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "mortgage-and-debt"
     },
     {
@@ -1051,6 +1565,7 @@
           "last_modified": "Wed, 25 Mar 2026 19:46:27 GMT"
         }
       ],
+      "discovery": "html",
       "section": "mortgage-and-debt"
     },
     {
@@ -1064,18 +1579,35 @@
           "last_modified": "Thu, 28 Nov 2024 22:43:09 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/condominium-apartment-survey-non-resident-ownership-rate",
       "title": "Condominium Apartment Survey: Non-Resident Ownership Rate",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/condominium-apartment-survey-non-resident-ownership-rate/condo-apartment-non-resident-ownership-en.xlsx",
+          "status": 200,
+          "size_bytes": 77192,
+          "last_modified": "Sun, 24 Nov 2024 03:28:07 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/percentile-rents-urban-centres-pooled-small-centre-rental-market",
       "title": "Percentile rents for all urban centres and pooled small centre rental market statistics",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/percentile-rents-urban-centres-pooled-small-centre-rental-market/percentile-rents-urban-centres-pooled-small-centre-rental-market-2025-en.xlsx",
+          "status": 200,
+          "size_bytes": 129239,
+          "last_modified": "Thu, 11 Dec 2025 15:06:43 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
@@ -1089,42 +1621,91 @@
           "last_modified": "Thu, 11 Dec 2025 14:50:18 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/rural-rental-market-survey-data-average-rent-centre",
       "title": "Rural Rental Market Survey Data: Average Rent and Census Subdivision",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/rural-rental-market-survey-data-average-rent-centre/rural-rental-market-survey-data-average-rent-census-subdivision-2025-en.xlsx",
+          "status": 200,
+          "size_bytes": 100083,
+          "last_modified": "Fri, 06 Feb 2026 03:21:35 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/rural-rental-market-survey-data-average-rent-province",
       "title": "Rural Rental Market Survey Data: Average Rent by Province",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/rural-rental-market-survey-data-average-rent-province/rural-rental-market-survey-data-average-rent-province-2025-en.xlsx",
+          "status": 200,
+          "size_bytes": 22385,
+          "last_modified": "Wed, 04 Feb 2026 01:56:33 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/rural-rental-market-survey-data-units-bedroom-type-centre",
       "title": "Rural Rental Market Survey Data: Units by Bedroom Type and Census Subdivision",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/rural-rental-market-survey-data-units-bedroom-type-centre/rental-market-survey-number-units-universe-bedroom-type-census-subdivision-2025-en.xlsx",
+          "status": 200,
+          "size_bytes": 78757,
+          "last_modified": "Fri, 06 Feb 2026 02:22:51 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/rural-rental-market-survey-data-units-bedroom-type-province",
       "title": "Rural Rental Market Survey Data: Units by Bedroom Type and Province",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/rural-rental-market-survey-data-units-bedroom-type-province/rural-rental-market-survey-data-units-bedroom-type-province-2025-en.xlsx",
+          "status": 200,
+          "size_bytes": 21439,
+          "last_modified": "Tue, 27 Jan 2026 02:43:47 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/rural-rental-market-survey-data-vacancy-rate-centre",
       "title": "Rural Rental Market Survey Data: Vacancy Rate by Census Subdivision",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/rural-rental-market-survey-data-vacancy-rate-centre/rural-rental-market-survey-data-vacancy-rate-census-subdivision-2025-en.xlsx",
+          "status": 200,
+          "size_bytes": 94125,
+          "last_modified": "Fri, 06 Feb 2026 03:32:48 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/rural-rental-market-survey-data-vacancy-rates-bedroom-and-province",
       "title": "Rural Rental Market Survey Data: Vacancy Rates by Bedroom and Province",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/rural-rental-market-survey-data-vacancy-rates-bedroom-province/rural-rental-market-survey-data-vacancy-rates-province-2025-en.xlsx",
+          "status": 200,
+          "size_bytes": 22409,
+          "last_modified": "Fri, 06 Feb 2026 03:23:07 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
@@ -1138,12 +1719,21 @@
           "last_modified": "Thu, 06 Feb 2025 20:19:36 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
       "page_url": "https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/housing-data/data-tables/rental-market/seniors-rental-housing-canada-provinces-metropolitan-areas",
       "title": "Seniors\u2019 Rental Housing: Canada, Provinces and Metropolitan Areas",
-      "assets": [],
+      "assets": [
+        {
+          "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/seniors-rental-housing-canada-provinces-metropolitan-areas/seniors-rental-housing-canada-provinces-metropolitan-areas-2021-en.xlsx",
+          "status": 200,
+          "size_bytes": 77220,
+          "last_modified": "Sun, 24 Nov 2024 03:28:07 GMT"
+        }
+      ],
+      "discovery": "render",
       "section": "rental-market"
     },
     {
@@ -1157,6 +1747,7 @@
           "last_modified": "Tue, 22 Jul 2025 14:58:56 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
@@ -1170,6 +1761,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:28:09 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
@@ -1183,6 +1775,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:28:09 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
@@ -1196,6 +1789,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:28:07 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
@@ -1209,6 +1803,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:28:05 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
@@ -1222,6 +1817,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:28:10 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
@@ -1235,6 +1831,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:28:06 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     },
     {
@@ -1248,6 +1845,7 @@
           "last_modified": "Sun, 24 Nov 2024 03:15:38 GMT"
         }
       ],
+      "discovery": "html",
       "section": "rental-market"
     }
   ]

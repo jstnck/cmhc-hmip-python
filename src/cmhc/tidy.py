@@ -35,6 +35,8 @@ from datetime import date
 
 import polars as pl
 
+from cmhc.wide import wide_to_long
+
 
 _TIME_BREAKDOWNS = {"Historical Time Periods", "Snapshot"}
 _GEO_BREAKDOWNS = {
@@ -191,33 +193,9 @@ def tidy(raw: bytes, breakdown: str | None = None) -> pl.DataFrame:
     if index_role == "sub_geography":
         subtitle_period = _extract_subtitle_period(all_lines, header_idx)
 
-    # Walk remaining columns: each named column is a value; if followed by an
-    # unnamed/duplicated column, that's the reliability code for it.
-    cols = df.columns[1:]
-    pairs: list[tuple[str, str | None]] = []
-    i = 0
-    while i < len(cols):
-        c = cols[i]
-        if _is_unnamed(c):
-            i += 1
-            continue
-        rel = cols[i + 1] if i + 1 < len(cols) and _is_unnamed(cols[i + 1]) else None
-        pairs.append((c, rel))
-        i += 1 if rel is None else 2
-
-    # Build long format. HMIP CSVs sometimes pad string cells with whitespace
-    # (e.g. 'a ' instead of 'a'); strip everything string-shaped.
-    parts: list[pl.DataFrame] = []
-    for value_col, rel_col in pairs:
-        selected = df.select(
-            pl.col(index_role).str.strip_chars(),
-            pl.lit(value_col.strip()).alias("category"),
-            pl.col(value_col).map_elements(_parse_number, return_dtype=pl.Float64).alias("value"),
-            (pl.col(rel_col).str.strip_chars() if rel_col else pl.lit(None).cast(pl.Utf8)).alias("reliability"),
-        )
-        parts.append(selected)
-
-    out = pl.concat(parts)
+    # Melt to long via the shared shape primitive. HMIP marks reliability
+    # columns by leaving the header blank (polars renames those to ''/_duplicated_).
+    out = wide_to_long(df, index_role, is_reliability=_is_unnamed, parse_value=_parse_number)
 
     # Drop empty-index rows ONLY if non-empty rows also exist (those are
     # summary/total rows duplicating data we already have). When EVERY row's
@@ -229,11 +207,6 @@ def tidy(raw: bytes, breakdown: str | None = None) -> pl.DataFrame:
         out = nonempty
     else:
         out = out.with_columns(pl.lit(None).cast(pl.Utf8).alias(index_role))
-
-    # Empty-string reliability codes are meaningless — treat as null.
-    out = out.with_columns(
-        pl.when(pl.col("reliability") == "").then(None).otherwise(pl.col("reliability")).alias("reliability"),
-    )
 
     if index_role == "period":
         # Time-series shape: period is in the data column; parse it. Null

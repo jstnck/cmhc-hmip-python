@@ -14,6 +14,10 @@ CLEAN_DIR = PROJECT_ROOT / "data" / "clean"
 EMPTY_DIR = RAW_DIR / "_empty"
 LOG_DIR = PROJECT_ROOT / "data" / "logs"
 
+# Static-data-tables surface (the xlsx/xls download surface, separate from HMIP).
+STATIC_RAW_DIR = RAW_DIR / "static"
+STATIC_CATALOGUE = PROJECT_ROOT / "data" / "static_catalogue.json"
+
 # Polite delay between HMIP requests, in seconds. Async pullers hold this
 # delay inside the concurrency semaphore so the effective max throughput is
 # CONCURRENCY / (response_time + REQUEST_DELAY).

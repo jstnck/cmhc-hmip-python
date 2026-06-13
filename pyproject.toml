@@ -10,6 +10,7 @@ dependencies = [
     "httpx>=0.27",
     "polars>=1.0",
     "duckdb>=1.0",
+    "fastexcel>=0.10",
     "geopandas>=1.1.3",
     "topojson>=1.10",
     "shiny>=1.0",
@@ -30,6 +31,7 @@ module-name = "cmhc"
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
+    "xlsxwriter>=3.2",
 ]
 scrape = [
     "playwright>=1.60.0",

@@ -24,6 +24,20 @@ DuckDB ad-hoc (reads parquet directly — no warehouse layer)
 build_dmt_rental.py  →  data/marts/cmhc_rental.duckdb  (Ontario rental, star + materialized metrics)
 ```
 
+Plus a parallel **static-data-tables** lane (non-HMIP xlsx surface), converging on the same long schema:
+
+```
+build_static_catalogue.py (+--render)  →  data/static_catalogue.json  (128 asset URLs)
+   ↓
+download_static.py  →  data/raw/static/{section}/{file}.xlsx
+   ↓
+build_static_parquet.py  →  matrix engine (MatrixSpec + catalogue provenance, via cmhc.wide)
+   ↓                                        ↓
+   ↓                                    data/clean/static/{table_id}.parquet  (source='static')
+   ↓
+(future) source-agnostic mart builder  →  unions data/clean/ (HMIP) + data/clean/static/
+```
+
 ### Modules (all in `src/cmhc/`)
 
 | File | Purpose |
@@ -31,10 +45,12 @@ build_dmt_rental.py  →  data/marts/cmhc_rental.duckdb  (Ontario rental, star +
 | `catalogue.py` | 285 `(survey, series, dimension, breakdown, geo_filter) → table_id` entries. Ported from mountainMath/cmhc's R package. |
 | `geographies.py` | Canada + 13 provinces/territories + 153 CMAs + 574 Ontario CSDs (168 CMA-member subset) + 2,382 Ontario CTs. `Geography.geography_id` is a string (preserves leading zeros in METCODE and the dotted compound CT id). Also exports `normalize_name()` for slash/hyphen drift across StatCan ↔ CMHC name spaces. |
 | `hmip.py` | Sync `fetch_table` + async `fetch_table_async` (shared `_build_form`, separate `httpx.Client` / `AsyncClient`). Exponential-backoff retries on 5xx + transport errors. `is_empty_response()` detects HMIP "No data available" / "archived" sentinels. |
-| `tidy.py` | Wide CSV → long polars DataFrame. Handles reliability codes, suppression sentinels, snapshot vs time-series shapes. `_parse_period` converts `'Feb 1990'` / `'1990 March'` / `'1991/Q1'` to start-of-period `date`. Snapshot tables get their period from the CSV subtitle via `_extract_subtitle_period`. Single-geo query rows (empty first cell) preserved as `sub_geography=null`. |
+| `tidy.py` | HMIP wide CSV → long polars DataFrame. Handles reliability codes, suppression sentinels, snapshot vs time-series shapes. `_parse_period` converts `'Feb 1990'` / `'1990 March'` / `'1991/Q1'` to start-of-period `date`. Snapshot tables get their period from the CSV subtitle via `_extract_subtitle_period`. Single-geo query rows (empty first cell) preserved as `sub_geography=null`. Melt delegated to `wide.py`. |
+| `wide.py` | Pure shape primitive: `wide_to_long(df, index, is_reliability, parse_value)` melts a wide matrix (value columns each optionally trailed by a reliability column) into long `(index, category, value, reliability)`. Shared by `tidy.py` (HMIP) and the static engine; the reliability-detection and value-parsing rules are injected, so neither surface special-cases the other. |
 | `validity.py` | `is_valid_for_geo(table, geo)` filters job lists for Canada/Province/CMA/CSD/CT geos (HMIP silently returns garbage for invalid combos). `BROKEN_TABLE_IDS` denylist for known-bad table_ids. |
 | `bulk.py` | The async orchestrator. `bulk_pull(geographies, *, label, surveys=None, concurrency=None, refresh_empty_days=None)` walks catalogue × geos, filters via `is_valid_for_geo` (and optional survey allowlist), fetches in parallel under a semaphore, writes CSVs / empty markers, emits per-attempt JSONL log. |
-| `config.py` | `PROJECT_ROOT`, `RAW_DIR`, `CLEAN_DIR`, `EMPTY_DIR`, `LOG_DIR`, `REQUEST_DELAY`, `CONCURRENCY`. |
+| `config.py` | `PROJECT_ROOT`, `RAW_DIR`, `CLEAN_DIR`, `EMPTY_DIR`, `LOG_DIR`, `STATIC_RAW_DIR`, `STATIC_CATALOGUE`, `REQUEST_DELAY`, `CONCURRENCY`. |
+| `static/` | Non-HMIP static-table harvest. `schema.py` — the shared long-format contract (`COLUMNS` = HMIP schema + `source`). `catalogue.py` — accessor over `static_catalogue.json` (slug→`table_id`, section→`survey`, asset meta, page title). `matrix.py` — the configurable engine: `MatrixSpec`/`Sheets` + `run()` (header detection, sheet-name-as-dimension, period parsing, sentinels; melt via `wide.py`). `specs.py` — typed recipe registry, slug→`MatrixSpec`. `runner.py` — `parse(table_id, path)`. |
 
 ### Scripts (thin entrypoints over `cmhc.*`)
 
@@ -49,7 +65,9 @@ build_dmt_rental.py  →  data/marts/cmhc_rental.duckdb  (Ontario rental, star +
 | `build_parquet.py` | Walk raw, tidy, concat by table_id, write parquet. Mtime-idempotent — full rebuild requires `rm -rf data/clean/` (needed when `tidy.py` schema changes). |
 | `build_dmt_rental.py` | Tidy parquet → single-file DuckDB data mart for Ontario rental (Rms + Srms). Star schema + materialized metric tables. ~4 s build, ~17 MB output. See [DATAMART.md](DATAMART.md). |
 | `example_queries.py` | DuckDB query demos against the cleaned parquet. |
-| `build_static_catalogue.py` | Discover static-data-table `.xlsx` assets on cmhc-schl.gc.ca. |
+| `build_static_catalogue.py` | Discover static-data-table `.xlsx`/`.xls` assets on cmhc-schl.gc.ca. `--render` (Playwright, `scrape` group) captures JS-injected downloads. 128 of 136 pages have a captured asset. |
+| `download_static.py` | Fetch every catalogued static asset → `data/raw/static/{section}/`. Idempotent (skips existing unless `--force`). |
+| `build_static_parquet.py` | Parse each spec'd static table via the matrix engine → `data/clean/static/{table_id}.parquet`. Mtime-idempotent; only builds tables present in `specs.py`. |
 | `probe_table.py` | Diagnostic single-table prober. `probe_table.py <table_id> --geo <name>` tries bare + catalogue + leave-one-out filter variants; identifies stale catalogue filters. See [DATA_DISCOVERY.md](DATA_DISCOVERY.md). |
 
 ### Geo lookups (`src/cmhc/data/`)
@@ -74,7 +92,7 @@ Raw zips cached at `data/raw/boundaries/` to avoid re-downloading (~50 MB). Buil
 
 ### Tests
 
-55 unit tests covering catalogue, geographies (incl. Ontario CSD + CT lookups), hmip, tidy (period parsing, snapshot CSV shape, subtitle period extraction, single-geo row preservation), validity. All green.
+63 unit tests covering catalogue, geographies (incl. Ontario CSD + CT lookups), hmip, tidy (period parsing, snapshot CSV shape, subtitle period extraction, single-geo row preservation), validity, and the static matrix engine (the three layout families, reliability columns, divider/footnote dropping, registry + catalogue wiring). All green.
 
 ---
 
@@ -92,6 +110,19 @@ Raw zips cached at `data/raw/boundaries/` to avoid re-downloading (~50 MB). Buil
 | Seniors | 10 | 1,575 | Seniors housing — Ontario CMAs (incl. snapshot-shape tables) |
 
 **14,646 raw CSVs + 3,802 empty markers** in `data/raw/`. Empty markers record (table, geo) combos that HMIP confirmed have no data — saves us from re-fetching them. The marker count dropped from a 2026-05-23 high of ~5,200 as the 2026-06-09 CSD re-pull converted thousands of stale markers into real CSVs.
+
+### Static data tables (non-HMIP)
+
+All 128 catalogued assets downloaded to `data/raw/static/` (~50 MB; 118 xlsx + 10 xls). **18 tables spec'd and built to `data/clean/static/` — 19,194 rows** (`source='static'`):
+
+| Section | Spec'd / on disk | Notes |
+|---|---|---|
+| Mortgage and Debt | 1 / 18 | Mortgage delinquency rate (Equifax; Canada/prov/CMA, 2012Q3–2025Q4). Rest of the section queued. |
+| Household Characteristics | 17 / 52 | Household counts, ownership rates, real median/average income (by tenure), core-housing-need counts/incidence. |
+| Rental Market | 0 / 20 | Some overlap HMIP Rms; uniques (seniors survey, non-resident ownership, percentile rents) queued. |
+| Housing Market Data | 0 / 38 | **Deliberately skipped** — duplicates HMIP Scss (starts/completions/absorption). |
+
+**Why only 18 of the parseable-looking files are spec'd:** a flat-matrix parse raises no error on a multi-dimensional table but produces wrong data, so each candidate is screened by a correctness gate (no all-null category; no duplicate `(geography, period, category)` keys) before earning a spec. Of 52 household-characteristics files: 17 clean, ~20 multi-dimensional (Tenure / Age group / Quintile breakdown — await a multi-dimension engine mode), 15 structural (no detectable header, or by-geography sheets). See DATA_DISCOVERY.md 2026-06-13.
 
 ### Data mart
 
@@ -195,7 +226,11 @@ We deliberately do **not** denylist these — denylisting at the `table_id` leve
 3. **Pull remaining provinces' CMAs** — `pull_cmas.py --province NAME` for BC, Alberta, Quebec, etc. Each ~10 min at concurrency=5. Currently optional; widen scope only on explicit ask.
 
 ### Soon after
-4. **Static data tables — render pass + first parsers.** The catalogue scraper (`build_static_catalogue.py`) is built, but 74 of 136 leaf pages inject their xlsx download via JS and show 0 assets to the httpx pass (see DATA_DISCOVERY.md 2026-06-11). A `--render` headless-browser fallback is added and validated on one page; **run it across all 74** to capture the missing downloads (`uv run --group scrape python scripts/build_static_catalogue.py --render`). Then write per-table xlsx parsers — **mortgage delinquency first** (confirmed: `…/mortgage-delinquency-rate-ca-prov-cmas-2012-q3-2025-q4-en.xlsx`, 41 KB, Canada/provinces/CMAs, Equifax-sourced). Add `fastexcel` to deps for polars xlsx reading. This unlocks the mortgage/debt + household-characteristics domains that HMIP does not serve.
+4. **Static data tables — separate harvest, shared schema.** Second data source, structurally separate from HMIP at acquisition, converging at the schema. Full design in [PLAN.md](PLAN.md). Pipeline is built end-to-end (catalogue → download → matrix engine → parquet); **18 tables spec'd, ~19k rows** (see "Static data tables" under Current data). Remaining:
+   - **Spec the rest of the high-value uniques** — mortgage-and-debt (credit, debt obligations, arrears) and rental-market uniques (seniors survey, non-resident ownership, percentile rents). Each is a screened `specs.py` entry; `build_static_parquet.py` picks them up automatically.
+   - **Multi-dimension engine mode** — unlock the ~20 deferred household-characteristics tables with a leading Tenure / Age group / Quintile dimension. The biggest single coverage gain in the static surface.
+   - **Structural stragglers** — the 15 no-header / by-geography household-characteristics files; individual handling.
+   - **Source-agnostic mart builder** — union `data/clean/` (HMIP) + `data/clean/static/`, reconcile geography via `normalize_name()` (static names aren't internally consistent — `Newfoundland` vs `Newfoundland and Labrador`).
 5. **Catalogue probe sweep** — use `scripts/probe_table.py` against other dimensions with non-trivial filter sets. The bedroom-filter and slash/hyphen bugs almost certainly aren't the last stale entries.
 6. **Open Government Portal sweep** — separate `pull_opengov.py`. Direct CSV downloads, gives independent cross-check data.
 7. **Pair-level denylist** if the per-(table, CMA) 500 noise becomes painful across provinces (see issue 1b).

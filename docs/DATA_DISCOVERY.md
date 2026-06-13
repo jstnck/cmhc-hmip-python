@@ -78,6 +78,58 @@ A copy of the bulletin lives under `data/raw/ontario_gov/affordable_units/` for 
 
 Append-only. Newest at top.
 
+### 2026-06-13 — Static parser: "parses without error" silently over-counts; two correctness gates needed
+
+**Context.** Building the static-table parsing layer (`cmhc.static.matrix` engine + `specs.py` registry, see PLAN.md). Most static files are the same wide matrix — geographies down the rows, periods or categories across the columns, with multi-sheet files carrying one extra dimension in the sheet name (census year, tenure). One configurable engine reads a typed `MatrixSpec` per table. The question was which of the downloaded files the flat engine actually parses *correctly*.
+
+**Finding — error-free ≠ correct.** Auto-detecting a spec per file and checking only that it threw no exception claimed **35 of 52** household-characteristics files parsed. Inspection showed many were silently wrong, in two distinct ways, each needing its own gate:
+
+1. **Melted text-dimension column → an all-null `category`.** Tables like `senior-led-households` have a leading `Age group` / `Category` text column on top of geography × year. The flat engine melts that column as if it were a value column; every cell is non-numeric, so it becomes a `category` that is **100% null**. *Gate: reject any output with an all-null category.*
+2. **Dropped leading-dimension column → duplicate keys.** The income-**quintile** tables put a `Quintile` column between `Geography` and the year columns. `Quintile` isn't a period and isn't reliability, so the engine **drops** it — collapsing the 5 quintiles into duplicate rows with identical `(geography, period, category)` but different values. No error, plausible row counts, wrong data. The all-null gate misses it entirely. *Gate: reject any output with duplicate `(geography, period, category)` keys.*
+
+With both gates, the real count is **17 clean** of 52: the rest are genuinely **multi-dimensional** (~20: a Tenure / Age group / Quintile / Visible-minority breakdown the flat engine can't represent — these await a multi-dimension engine mode) or **structural** (~15: no detectable header row, or one-sheet-per-province "by-geography" files).
+
+**Secondary bug — the metric banner.** For single-metric tables the engine took `category` from the sheet's first cell. On the CMHC "Canadian Housing Observer" files that cell is a branding banner (`CANADIAN HOUSING OBSERVER`, or the French `L'OBSERVATEUR DU LOGEMENT AU CANADA`), not the metric. Fixed by sourcing the metric from the catalogue **page title** instead (reliable, scraped `<h1>`).
+
+**Also seen.** One rental-market file (`rms-8-urban-vacancy-rate-by-rental-quintile-2019-10.xls`) is legacy **SpreadsheetML-2003 XML**, which calamine/`fastexcel` cannot open (`Invalid OLE signature`). Deferred; it overlaps HMIP Rms anyway.
+
+**Action taken.** Engine + registry shipped; **18 tables spec'd** (mortgage delinquency + 17 household-characteristics), ~19k rows in `data/clean/static/`. `specs.py` documents that entries are admitted only after passing both correctness gates. housing-market-data (~38 files) excluded by design (HMIP/Scss overlap).
+
+**Implications for future work.** The correctness gates are the admission test for every new static spec — re-run them when adding tables. The multi-dimension engine mode is the largest remaining static coverage lever (~20 household-characteristics tables, plus similar shapes in mortgage-and-debt). A flat-engine parse that "works" should never be trusted on a table with a leading non-geography text column.
+
+**Refs.** `src/cmhc/static/matrix.py` (engine), `specs.py` (registry + gate note), `cmhc/wide.py` (shared melt primitive). Prior: 2026-06-11 (JS-injected downloads), 2026-06-13 render pass (below).
+
+---
+
+### 2026-06-13 — Full `--render` pass captured 66 JS-injected downloads; only 8 leaf pages still asset-less (all absorption tables)
+
+**Finding.** Ran the queued full headless-render pass across the static-data-tables surface (`uv run --group scrape python scripts/build_static_catalogue.py --render`). It recovered the JS-injected downloads the 2026-06-11 entry predicted, taking the catalogue from 62 to **128 of 136** pages with a captured asset.
+
+| | before | after |
+|---|---|---|
+| pages with assets | 62 | 128 |
+| total assets | 62 | 128 |
+| discovery `html` / `render` / none | 62 / 0 / 74 | 62 / 66 / 8 |
+
+By section, the three highest-value domains are now fully captured: household-characteristics 52/52, mortgage-and-debt 18/18, rental-market 20/20. Only **housing-market-data** still has gaps (38/46).
+
+**The 8 remaining asset-less pages** are all in housing-market-data and all describe **absorption / unabsorbed inventory**:
+
+- `average-months-unabsorbed-life-inventory-{dwelling-type, intended-market}`
+- `units-absorbed-{dwelling-type, intended-market}`
+- `units-unabsorbed-{dwelling-type, intended-market}`
+- `units-unabsorbed-for-more-than-one-month-{dwelling-type, intended-market}`
+
+**Likely not a real loss.** This is absorption data, which the **Scss** survey already covers via HMIP (starts / completions / unabsorbed inventory — see PROGRESS.md). The 8 are the one static domain that *overlaps* HMIP rather than extending it, so a render miss here costs little. Two plausible causes for the empty result, not yet distinguished: (a) the page embeds an interactive widget with no downloadable xlsx, or (b) the asset loads through a DOM path the network-idle wait + DOM regex doesn't reach. Flagged for a manual DevTools look rather than chased — low priority given the HMIP overlap.
+
+**Action taken.** `data/static_catalogue.json` rewritten with the full asset set + per-page `discovery` field. Run log: `data/logs/static_render_*.log`. The 2026-06-11 caveat ("treat a 0-asset entry as not-yet-discovered") now applies only to those 8 housing-market-data pages.
+
+**Implications for future work.** The inventory step (PLAN.md static sequence #1) is done — the full set of files-to-parse is now visible. Next is fixing the shared long-format contract + standing up `src/cmhc/static/`, then the mortgage-delinquency parser as the first vertical slice. The 8 absorption pages should be diffed against existing Scss coverage before deciding whether they're worth a manual capture at all.
+
+**Refs.** Scraper: `scripts/build_static_catalogue.py` (`--render`). Catalogue: `data/static_catalogue.json`. Prior entry: 2026-06-11.
+
+---
+
 ### 2026-06-11 — Half the static-data-table downloads are JS-injected, invisible to the httpx scraper (mortgage delinquency among them)
 
 **Finding.** Asked whether CMHC publishes **mortgage delinquency** data. It does — but not where the project was looking.
