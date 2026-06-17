@@ -8,7 +8,7 @@ CMHC changes filter shapes and table identifiers without notice, and the R packa
 
 ## Data mart
 
-`data/marts/cmhc_rental.duckdb` is a single-file DuckDB extract of Ontario rental data (Rental Market Survey + Secondary Rental Market Survey). ~17 MB. Star schema plus materialized metric tables for the common cross-sections; reliability codes, suppression markers, and CMHC table provenance carried through to every row.
+`data/marts/cmhc_rental.duckdb` is a single-file DuckDB extract of Ontario rental data (Rental Market Survey + Secondary Rental Market Survey), down to census-tract level. ~38 MB. Star schema plus materialized metric tables for the common cross-sections; reliability codes, suppression markers, and CMHC table provenance carried through to every row.
 
 Schema, column conventions, and example queries: [docs/DATAMART.md](docs/DATAMART.md).
 

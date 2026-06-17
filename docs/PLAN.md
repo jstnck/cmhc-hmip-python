@@ -64,7 +64,7 @@ cmhc_data_portal/
 │   ├── pull_canada_and_provinces.py
 │   ├── pull_cmas.py
 │   ├── pull_csds.py
-│   ├── pull_cts.py                 # not yet run; ~230k requests, overnight
+│   ├── pull_cts.py                 # in progress; ~36k requests (15 Rms tables/CT, 11 CT-500 tables excluded)
 │   ├── extract_geo_lookups.py      # StatCan / mountainMath geo lookups → CSVs
 │   ├── build_boundaries.py         # StatCan cartographic files → Ontario GeoJSONs
 │   ├── build_parquet.py            # raw CSV tree → tidy parquet
@@ -162,7 +162,7 @@ Raw is kept so we can re-parse without re-fetching. Clean is what gets queried. 
 5. **Tidy parquet archive** at the (period, geography, category) grain. ✅
 6. **Other surveys** (Scss, Srms, Seniors, Census, Core Housing Need) at Canada + Ontario CMA scope. Srms expanded to 8 publishing Ontario CMAs (was 4) via stale-marker refresh. ✅
 7. **Sharable data mart** — single-file DuckDB extract of Ontario rental, star schema + materialized metric tables. ✅ Coverage tracked in `_meta`; rebuild via `scripts/build_dmt_rental.py`.
-8. **Ontario CT pull** — `scripts/pull_cts.py --surveys Rms,Srms`. ~230k requests, overnight at the safer concurrency. Unlocks neighbourhood-level rental. Queued.
+8. **Ontario CT pull** — `scripts/pull_cts.py --surveys Rms` with `--exclude-tables` for the 11 CT-500 tables (4 derived Rms series + all 7 Srms; see DATA_DISCOVERY.md 2026-06-17). ~36k requests across 15 good Rms tables/CT, after the 2026-06-16 leaf-redundancy guard trimmed the table set from 91→19. Unlocks neighbourhood-level rental. In progress.
 9. **Static data tables** (`housing-data/data-tables/`). Most of this surface (mortgage delinquency, credit scores, demographic cuts of core housing need, Indigenous housing, long-range household projections) is not served by HMIP. Separate harvest, shared schema — see "Static data tables: separate harvest, shared schema" above. Sequence:
    1. **Complete the inventory.** Run the `--render` pass to capture the JS-injected downloads, so the full set of files-to-parse is visible. ✅ done 2026-06-13 — 128 of 136 pages now have a captured asset URL; the 8 gaps are absorption tables that overlap HMIP's Scss (see DATA_DISCOVERY.md).
    2. **Fix the shared long-format contract + stand up `src/cmhc/static/`.** ✅ `schema.py` (contract), `catalogue.py` (provenance accessor over `static_catalogue.json`), `fastexcel` added.

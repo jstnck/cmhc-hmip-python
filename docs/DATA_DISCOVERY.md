@@ -78,6 +78,62 @@ A copy of the bulletin lives under `data/raw/ontario_gov/affordable_units/` for 
 
 Append-only. Newest at top.
 
+### 2026-06-17 — 11 tables deterministically 500 at CT level (4 derived Rms series + all 7 Srms); handled with a run-time skip, not a catalogue/validity edit
+
+**Context.** First real Ontario CT pull (Rms, post the 2026-06-16 leaf-redundancy guard → 19 tables/CT). Three runs in, the resume appeared to be "all 500s." Investigated rather than denylisting blind.
+
+**Finding — it was never a block; specific tables are down at CT.** Single-shot probes (no concurrency, no retries) cleanly split the not-yet-pulled tables into 500 vs ok, while known-good tables (`2.2.1`, `2.2.6`) and a Toronto-CMA query returned data under identical conditions. So this is **table-specific, not throttling.** Eleven tables 500 for every CT:
+
+| Survey | table_id | Series / Dimension |
+|---|---|---|
+| Rms | `2.2.4`  | Vacancy Rate / Rent Ranges |
+| Rms | `2.2.33` | Vacancy Rate / Rent Quartiles |
+| Rms | `2.2.12` | Average Rent Change / Bedroom Type |
+| Rms | `2.2.31` | Summary Statistics |
+| Srms | `4.2.1` `4.2.3` `4.2.4` `4.2.5` `4.4.2` `4.6.1` `4.6.2` | **all 7** — Condo vacancy/rent/universe, % condo rented, other secondary |
+
+Two structural reads:
+- **All of Srms 500s at CT.** Secondary/condo rental is a CMA-level survey (publishes for ~8 Ontario CMAs); it doesn't exist at tract granularity, so HMIP errors instead of returning empty. The remaining good Rms tables (Availability, Average/Median Rent, Rental Universe, core Vacancy) all return data — so CT coverage = **15 Rms tables, no Srms**, which is correct, not a gap.
+- **The 4 Rms are "derived" series** (rent-*range*/quartile vacancy, rent *change*, summary stats) HMIP doesn't generate at CT.
+
+**Why this hurt.** Errors are never cached (no CSV, no empty marker), so every resume re-fires them — and as the good tables complete, each restart concentrates ever more on the doomed ones, looking like "all 500s." With the broken tables sitting early in catalogue order, each costs a full CT sweep of failures before the run reaches real data behind it.
+
+**Why a run-time skip, not a `BROKEN_TABLE_IDS` / validity edit.** (1) These tables work fine at CMA/province — a *global* denylist would suppress valid data. (2) They're **flaky, not provably dead**: `2.2.4` served 210 results in run 1 before going hard-500 in runs 2–3. Baking an "invalid at CT" claim into the data model would risk exactly the stale exclusion this file exists to fight ("missing data is suspicious"). So the fix is a `bulk_pull(exclude_tables=…)` param exposed as `pull_cts.py --exclude-tables` — a visible, recorded, this-run-only choice that leaves catalogue + validity untouched. Drop the flag and re-run to re-probe; errors don't cache, so it backfills automatically.
+
+**Also done this session.** Retry backoff shortened (`MAX_RETRIES=2`, base 0.5s → worst-case 1.5s vs the old 7s) so a deterministically-failing table is cheap to skip past wherever it sits in the order — `src/cmhc/hmip.py`.
+
+**Action taken.** `exclude_tables` added to `bulk.bulk_pull`; `--exclude-tables` on `pull_cts.py`. Recommended CT command:
+```
+uv run python scripts/pull_cts.py --surveys Rms --concurrency 3 \
+  --exclude-tables 2.2.4,2.2.33,2.2.12,2.2.31,4.2.1,4.2.3,4.2.4,4.2.5,4.4.2,4.6.1,4.6.2
+```
+
+**To revisit.** Re-probe the 4 Rms IDs on a future pull (they may be intermittently up). If any Srms ever returns CT data, that contradicts the CMA-level-survey read and is worth a note. A `probe_table.py <id> --geo "CT …"` sweep is the check.
+
+**Refs.** `src/cmhc/bulk.py`, `scripts/pull_cts.py`, `src/cmhc/hmip.py`. Related: 2026-06-16 leaf-redundancy guard (below); the per-(table, CMA) 500 pattern in PROGRESS.md issue 1b is the same family one level up.
+
+---
+
+### 2026-06-16 — At a CT (leaf geo), sub-CMA geographic breakdowns are pure redundancy, not data — CT Rms sweep cut 91→19 tables/CT
+
+**Context.** Sizing the never-run Ontario CT pull (PROGRESS.md open item #10). The current validity filter calls **91 Rms tables valid per CT** → 216,762 requests over 2,382 CTs (~8.5 h at the safe concurrency). Initial hypothesis: the sub-CMA breakdowns (Survey Zones / Census Subdivision / Neighbourhoods / Census Tracts) would return empty at CT level — a CT has nothing below it to enumerate — and could be skipped as wasted requests. **Verified before optimizing; the hypothesis was wrong in a way that matters.**
+
+**Finding — they don't return empty, they echo the CT's own row.** Probing one table per breakdown family at a data-bearing Toronto CT (`CT 5350004.00`):
+
+1. The four sub-CMA breakdowns each return `200 OK` with a *single* data row (empty index cell — the "single-geo query at the geo itself" shape `tidy()` already preserves as `sub_geography=null`). Not the `"No data available"` sentinel. A naive "skip because empty" guard would have **written real data to empty markers** and lost it.
+2. The four breakdowns are **byte-identical to each other** at the CT — querying a leaf with any sub-CMA *geographic* breakdown yields the same row. Confirmed on a non-suppressed CT: `,2.2,c ,1.4,d ,**,,**,,1.5,a ,` for all of `2.1.1.3/.4/.5/.6`.
+3. That shared snapshot row **equals the latest period of the corresponding Historical Time Periods table**, value-for-value and reliability-for-reliability (`2.1.1.6` vs `2.2.1` @ 2025-10, byte-exact after `tidy`). All 19 snapshot `(series, dimension)` groups have such a time-series sibling (19/19).
+
+So at a leaf geo the 72 snapshot tables collapse to 19 distinct snapshots, each a strict subset of a time-series table. The **19 Historical Time Periods tables are a complete superset** — keeping only them loses nothing.
+
+**Action taken.** `is_valid_for_geo` now rejects `SUB_CMA_BREAKDOWNS` for `TYPE_CT` (CSD path unchanged — at a CSD those breakdowns enumerate real children, which is where the 2026-06-09 461k-row recovery came from). CT Rms sweep drops **91→19 tables/CT** (~217k→~45k requests, ~8.5 h→~1.7 h) with **zero data loss**. Two tests added (`test_ct_skips_sub_cma_geographic_breakdowns`, `test_ct_keeps_time_series_breakdown`).
+
+**Scope / caveat.** Byte-verified for **Rms** (the planned `--surveys Rms,Srms` pull; Srms is already time-series-only). Census and Scss have the same structural shape (sub-CMA breakdowns + a Historical Time Periods sibling) and the guard trims them too, but they were **not** byte-verified — re-confirm with `probe_table.py` before a CT pull of those surveys. "Snapshot"-breakdown tables (Seniors) are *not* geographic and are deliberately kept.
+
+**Refs.** `src/cmhc/validity.py` (CT guard), `tests/test_validity.py`. Reuses the existing `SUB_CMA_BREAKDOWNS` constant.
+
+---
+
 ### 2026-06-13 — Static parser: "parses without error" silently over-counts; two correctness gates needed
 
 **Context.** Building the static-table parsing layer (`cmhc.static.matrix` engine + `specs.py` registry, see PLAN.md). Most static files are the same wide matrix — geographies down the rows, periods or categories across the columns, with multi-sheet files carrying one extra dimension in the sheet name (census year, tenure). One configurable engine reads a typed `MatrixSpec` per table. The question was which of the downloaded files the flat engine actually parses *correctly*.

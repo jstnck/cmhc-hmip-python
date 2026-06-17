@@ -26,9 +26,9 @@ This doc covers:
 - 42 Ontario CMAs in the data (8 of them publish Srms; the rest are Rms-only)
 - 147 Ontario CSDs with at least one published value, plus 20 placeholder rows for CMA-member CSDs CMHC publishes nothing for
 - Of those 147, 22 belong to Census Agglomerations rather than CMAs — their CMHC publication is at the CSD level but they have no parent CMA, so these rows carry `cma = NULL` (see column conventions). They are a subset of the 147, not additional to it.
-- **No Census Tracts.** ~2,382 Ontario CTs exist; the CT pull is queued in PROGRESS.md but not yet run. Neighbourhood-level rental is unavailable in this mart.
+- **1,589 Census Tracts** with at least one published value (Rms only — CT-level Srms and the derived Rms series rent-range/rent-quartile vacancy, rent change, summary stats don't publish at tract granularity). Each CT rolls up to its parent CMA and CSD (`cma`, `cma_uid`, `csduid` populated). CT rental is heavily confidentiality-suppressed — ~38% of CT cells carry a value, the rest are `**`. CTs that returned no data at all are not in the mart (no placeholder rows at CT level).
 
-Total: **210 geographies** — 1 province + 42 CMAs + 147 CSDs with data + 20 placeholder CSDs.
+Total: **1,799 geographies** — 1 province + 42 CMAs + 147 CSDs with data + 20 placeholder CSDs + 1,589 CTs.
 
 **Out of scope:** Canada and other provinces are dropped to keep the mart Ontario-focused; query the project's full parquet archive directly if you need national comparison.
 
@@ -83,13 +83,13 @@ The metric inventory. `SELECT * FROM metrics` is the catalogue.
 
 | column | type | notes |
 |---|---|---|
-| `geo_id` | VARCHAR | PK — canonical ID (`CSD:<CSDUID>`, `CMA:<CMA_UID>`, or `'ON'`) |
-| `geo_name` | VARCHAR | Display name. Normalized to HMIP's hyphen form (`Guelph-Eramosa (TP)`, never `Guelph/Eramosa (TP)`) — see `cmhc.geographies.normalize_name` |
-| `geo_level` | VARCHAR | `'Province'`, `'CMA'`, `'CSD'` |
+| `geo_id` | VARCHAR | PK — canonical ID (`CT:<GeographyId>`, `CSD:<CSDUID>`, `CMA:<CMA_UID>`, or `'ON'`). CT uses the unique CMHC GeographyId, not CTUID, since 6 CTUIDs split across two CSDs |
+| `geo_name` | VARCHAR | Display name. Normalized to HMIP's hyphen form (`Guelph-Eramosa (TP)`, never `Guelph/Eramosa (TP)`) — see `cmhc.geographies.normalize_name`. CTs are `CT <CTUID> (<CSDNAME>)` |
+| `geo_level` | VARCHAR | `'Province'`, `'CMA'`, `'CSD'`, `'CT'` |
 | `province` | VARCHAR | Always `'Ontario'` |
-| `cma` | VARCHAR | Parent CMA. **Populated only when the CSD is a member of a StatCan CMA.** ~22 Ontario CSDs publish rental data via CMHC but sit in Census Agglomerations (not CMAs) — those rows have `cma = NULL`. CMA rows have `cma = geo_name`; the Province row has `cma = NULL` |
-| `csduid` | VARCHAR | StatCan CSDUID for CSD rows; NULL above |
-| `cma_uid` | VARCHAR | StatCan CMA UID for CMA rows + CSD rows whose parent CMA is in StatCan's hierarchy |
+| `cma` | VARCHAR | Parent CMA. **Populated only when the CSD is a member of a StatCan CMA.** ~22 Ontario CSDs publish rental data via CMHC but sit in Census Agglomerations (not CMAs) — those rows have `cma = NULL`. CMA rows have `cma = geo_name`; CT rows carry their parent CMA (all CTs sit inside a CMA); the Province row has `cma = NULL` |
+| `csduid` | VARCHAR | StatCan CSDUID. The CSD's own UID for CSD rows; the **parent** CSDUID for CT rows; NULL for CMA/Province |
+| `cma_uid` | VARCHAR | StatCan CMA UID for CMA rows + CSD/CT rows whose parent CMA is in StatCan's hierarchy |
 | `has_data` | BOOLEAN | TRUE if the geography has any rows in `rental_observations`. FALSE for **placeholder** rows added for CMA-member Ontario CSDs that CMHC withholds entirely (no rental data published at any breakdown). See "Placeholder rows" below |
 
 ### `dimension_values`
@@ -110,6 +110,7 @@ Single-row table with build provenance.
 | `n_cma` | BIGINT | Distinct Ontario CMAs present in `geographies` |
 | `n_csd_with_data` | BIGINT | Ontario CSDs with at least one observation |
 | `n_csd_no_data` | BIGINT | Placeholder Ontario CSDs (CMA-members CMHC publishes nothing for) |
+| `n_ct` | BIGINT | Ontario Census Tracts with data (Rms only) |
 | `coverage_summary` | VARCHAR | Human-readable scope statement |
 
 ---
@@ -266,12 +267,24 @@ WHERE  r.geo_name     = 'Toronto'
   AND  r.bedroom_type = '2 Bedroom'
 ORDER BY r.period;
 
--- 7. Browse the metric catalogue
+-- 7. Census-tract rents within a CMA (high-confidence only)
+--    geo_level = 'CT' and the cma rollup column scope it to one metro.
+--    CT rental is heavily suppressed, so filter on reliability before ranking.
+SELECT geo_name, avg_rent_dollars, reliability
+FROM   average_rent_by_bedroom
+WHERE  geo_level    = 'CT'
+  AND  cma          = 'Toronto'
+  AND  bedroom_type = '2 Bedroom'
+  AND  period_year  = 2025
+  AND  reliability IN ('a','b')
+ORDER BY avg_rent_dollars DESC;
+
+-- 8. Browse the metric catalogue
 SELECT metric_name, market, unit, description
 FROM   metrics
 ORDER BY market, metric_name;
 
--- 8. What's the most recent data in this file?
+-- 9. What's the most recent data in this file?
 SELECT MAX(updated_at) AS freshest, MIN(updated_at) AS stalest
 FROM   rental_observations;
 ```

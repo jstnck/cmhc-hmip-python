@@ -119,8 +119,8 @@ def _table_id_to_metric_dimension() -> dict[str, tuple[int, str | None]]:
     return out, metrics_df
 
 
-def _ontario_geography_universe() -> tuple[set[str], set[str], set[str]]:
-    """Return (ontario_provinces, ontario_cmas, ontario_csd_labels).
+def _ontario_geography_universe() -> tuple[set[str], set[str], set[str], set[str]]:
+    """Return (ontario_provinces, ontario_cmas, ontario_csd_labels, ontario_ct_labels).
 
     All labels are normalized via normalize_name so they match the form HMIP
     writes into our parquets. The `None (None)` entry from a NULL-CSDNAME row
@@ -146,7 +146,17 @@ def _ontario_geography_universe() -> tuple[set[str], set[str], set[str]]:
                 continue
             ontario_csd_labels.add(normalize_name(f"{r['CSDNAME']} ({r['CSDTYPE']})"))
 
-    return ontario_provinces, ontario_cmas, ontario_csd_labels
+    # CT labels match the parquet geo_name `CT {CTUID} ({CSDNAME})` that
+    # geographies.py writes. CTUID is read as text so trailing zeros (`...216.00`)
+    # survive — float-parsing would drop them and break the match.
+    on_cts = pl.read_csv(data_dir / "cts_ontario.csv", schema_overrides={"CTUID": pl.Utf8})
+    ontario_ct_labels = {
+        normalize_name(f"CT {r['CTUID']} ({r['CSDNAME']})")
+        for r in on_cts.iter_rows(named=True)
+        if r["CTUID"] is not None and r["CSDNAME"] is not None
+    }
+
+    return ontario_provinces, ontario_cmas, ontario_csd_labels, ontario_ct_labels
 
 
 def _load_parquets() -> pl.DataFrame:
@@ -182,7 +192,7 @@ def _normalize_geo(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def _assign_geo_level(df: pl.DataFrame, on_prov: set[str], on_cma: set[str], on_csd: set[str]) -> pl.DataFrame:
+def _assign_geo_level(df: pl.DataFrame, on_prov: set[str], on_cma: set[str], on_csd: set[str], on_ct: set[str]) -> pl.DataFrame:
     """Tag each row with geo_level + Ontario province; filter to Ontario only.
 
     `cma` rollup is NOT set here — it's looked up canonically in
@@ -202,6 +212,8 @@ def _assign_geo_level(df: pl.DataFrame, on_prov: set[str], on_cma: set[str], on_
               .then(pl.lit("CMA"))
               .when(pl.col("_geo_name_norm").is_in(list(on_csd)))
               .then(pl.lit("CSD"))
+              .when(pl.col("_geo_name_norm").is_in(list(on_ct)))
+              .then(pl.lit("CT"))
               .otherwise(pl.lit(None, dtype=pl.String))
               .alias("geo_level"),
         )
@@ -275,6 +287,24 @@ def _canonical_geo_lookups() -> dict:
         csd_to_name_type[label] = (r["CSDNAME"], r["CSDTYPE"])
         all_cma_member_csds.add(label)
 
+    # CT crosswalk, keyed by the same `CT {CTUID} ({CSDNAME})` label the parquets
+    # carry. CTUID / CSDUID / GeographyId read as text to preserve leading and
+    # trailing zeros; METCODE stays numeric to match cmas.csv's Int64 column.
+    cts = pl.read_csv(
+        data_dir / "cts_ontario.csv",
+        schema_overrides={"CTUID": pl.Utf8, "CSDUID": pl.Utf8, "GeographyId": pl.Utf8},
+    )
+    ct_to_metcode = {}
+    ct_to_csduid = {}
+    ct_to_geogid = {}
+    for r in cts.iter_rows(named=True):
+        if r["CTUID"] is None or r["CSDNAME"] is None:
+            continue
+        label = normalize_name(f"CT {r['CTUID']} ({r['CSDNAME']})")
+        ct_to_metcode[label] = str(r["METCODE"])
+        ct_to_csduid[label] = r["CSDUID"]
+        ct_to_geogid[label] = r["GeographyId"]
+
     return {
         "cma_name_by_metcode": cma_name_by_metcode,
         "cma_uid_by_name":     cma_uid_by_name,
@@ -282,6 +312,9 @@ def _canonical_geo_lookups() -> dict:
         "csd_to_uid":          csd_to_uid,
         "csd_to_name_type":    csd_to_name_type,
         "all_cma_member_csds": all_cma_member_csds,
+        "ct_to_metcode":       ct_to_metcode,
+        "ct_to_csduid":        ct_to_csduid,
+        "ct_to_geogid":        ct_to_geogid,
     }
 
 
@@ -306,6 +339,9 @@ def _build_geographies_dim(
     csd_to_metcode      = lookups["csd_to_metcode"]
     csd_to_uid          = lookups["csd_to_uid"]
     all_cma_member      = lookups["all_cma_member_csds"]
+    ct_to_metcode       = lookups["ct_to_metcode"]
+    ct_to_csduid        = lookups["ct_to_csduid"]
+    ct_to_geogid        = lookups["ct_to_geogid"]
 
     def _cma_for_csd(label: str) -> str | None:
         mc = csd_to_metcode.get(label)
@@ -334,15 +370,28 @@ def _build_geographies_dim(
             .sort(["geo_level", "geo_name"])
     )
 
+    def _cma_for_ct(label: str) -> str | None:
+        mc = ct_to_metcode.get(label)
+        return cma_name_by_metcode.get(mc) if mc else None
+
     rows = []
     for r in fact_geos.iter_rows(named=True):
         level = r["geo_level"]
         name  = r["geo_name"]
-        cma   = name if level == "CMA" else (_cma_for_csd(name) if level == "CSD" else None)
-        csd   = _csduid(level, name)
-        cmau  = _cmauid(level, name, cma)
+        if level == "CT":
+            # CT rolls up to its parent CMA (via METCODE) and parent CSD; geo_id
+            # uses the unique GeographyId, since CTUID alone collides on 6 splits.
+            cma  = _cma_for_ct(name)
+            csd  = ct_to_csduid.get(name)
+            cmau = cma_uid_by_name.get(cma) if cma else None
+            gid  = f"CT:{ct_to_geogid.get(name, name)}"
+        else:
+            cma  = name if level == "CMA" else (_cma_for_csd(name) if level == "CSD" else None)
+            csd  = _csduid(level, name)
+            cmau = _cmauid(level, name, cma)
+            gid  = _geo_id(level, name, csd, cmau)
         rows.append({
-            "geo_id":      _geo_id(level, name, csd, cmau),
+            "geo_id":      gid,
             "geo_name":    name,
             "geo_level":   level,
             "province":    r["province"],
@@ -472,8 +521,8 @@ def main() -> None:
     print(f"  Catalogue: {len(_METRICS)} metrics, {len(table_id_map)} table_ids mapped")
 
     # 2. Ontario geography universe
-    on_prov, on_cma, on_csd = _ontario_geography_universe()
-    print(f"  Ontario universe: 1 province, {len(on_cma)} CMAs, {len(on_csd)} CSD labels")
+    on_prov, on_cma, on_csd, on_ct = _ontario_geography_universe()
+    print(f"  Ontario universe: 1 province, {len(on_cma)} CMAs, {len(on_csd)} CSD labels, {len(on_ct)} CT labels")
 
     # 3. Load parquets + tag updated_at
     raw = _load_parquets()
@@ -481,7 +530,7 @@ def main() -> None:
 
     # 4. Normalize geo + filter to Ontario
     fact = _normalize_geo(raw)
-    fact = _assign_geo_level(fact, on_prov, on_cma, on_csd)
+    fact = _assign_geo_level(fact, on_prov, on_cma, on_csd, on_ct)
     print(f"  After Ontario filter: {len(fact):,} rows")
 
     # 5. Attach metric_id (drops rows we can't map)
@@ -501,9 +550,10 @@ def main() -> None:
     n_csd_with = int(((geos_df["geo_level"] == "CSD") & geos_df["has_data"]).sum())
     n_csd_without = int(((geos_df["geo_level"] == "CSD") & ~geos_df["has_data"]).sum())
     n_cma = int((geos_df["geo_level"] == "CMA").sum())
+    n_ct = int((geos_df["geo_level"] == "CT").sum())
     print(f"  Geographies: {len(geos_df)} unique "
           f"(1 province, {n_cma} CMAs, {n_csd_with} CSDs with data + "
-          f"{n_csd_without} CSDs placeholder-only)")
+          f"{n_csd_without} CSDs placeholder-only, {n_ct} CTs)")
 
     # 8. Build dimension_values dim
     dim_vals_df = _build_dimension_values(fact)
@@ -535,9 +585,10 @@ def main() -> None:
     coverage = (
         f"Ontario: 1 province + {n_cma} CMAs + "
         f"{n_csd_with} CSDs with data + {n_csd_without} CSDs with no CMHC "
-        f"publication (placeholder rows in `geographies`, no rental_observations). "
-        f"No Census Tracts (not yet pulled; ~2,382 Ontario CTs would unlock "
-        f"neighbourhood-level rental — see docs/PROGRESS.md)."
+        f"publication (placeholder rows in `geographies`, no rental_observations) + "
+        f"{n_ct} Census Tracts with data (Rms only; CT-level Srms and the derived "
+        f"Rms series don't publish at tract granularity). CT rental is heavily "
+        f"confidentiality-suppressed — expect many `**` cells."
     )
     meta_df = pl.DataFrame([{
         "built_at_utc":          datetime.now(tz=timezone.utc),
@@ -548,6 +599,7 @@ def main() -> None:
         "n_csd_with_data":       n_csd_with,
         "n_csd_no_data":         n_csd_without,
         "n_cma":                 n_cma,
+        "n_ct":                  n_ct,
         "coverage_summary":      coverage,
     }])
 

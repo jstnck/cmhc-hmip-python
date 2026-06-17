@@ -30,6 +30,15 @@ def is_empty_response(raw: bytes) -> bool:
 # Matches the cookie shipped by the R package. Likely unnecessary but cheap to send.
 _COOKIE = "DoNotShowIntro=true"
 
+# Retry policy for transient 5xx / transport errors. Deliberately short: most HMIP
+# 500s are deterministic (a bad/flaky table_id, e.g. 2.2.4 at CT level), so slow
+# exponential backoff just turns a guaranteed failure into a multi-second stall —
+# painful when one bad table is walked across thousands of geos. A couple of quick
+# retries still catches genuinely transient blips. sleep = BASE * 2**attempt, so
+# worst-case wait before giving up is BASE*(2**MAX_RETRIES - 1) = 1.5s here.
+MAX_RETRIES = 2
+RETRY_BACKOFF_BASE = 0.5  # seconds; backoffs are 0.5s, 1.0s
+
 # Shared sync client — connection reuse matters at thousands of requests.
 _client = httpx.Client(headers={"Cookie": _COOKIE})
 atexit.register(_client.close)
@@ -100,12 +109,12 @@ def fetch_table(
     quarter: int | None = None,
     frequency: str | None = None,
     timeout: float = 60.0,
-    max_retries: int = 3,
+    max_retries: int = MAX_RETRIES,
 ) -> bytes:
     """POST to ExportTable and return the raw CSV bytes (latin1 encoded).
 
     Retries up to `max_retries` times on transient 5xx and transport errors,
-    with exponential backoff (1s, 2s, 4s, ...).
+    with short exponential backoff (RETRY_BACKOFF_BASE * 2**attempt).
     """
     form = _build_form(table, geo, year, month, quarter, frequency)
 
@@ -116,12 +125,12 @@ def fetch_table(
             return response.content
         except httpx.HTTPStatusError as e:
             if e.response.status_code >= 500 and attempt < max_retries:
-                time.sleep(2 ** attempt)
+                time.sleep(RETRY_BACKOFF_BASE * 2 ** attempt)
                 continue
             raise
         except httpx.TransportError:
             if attempt < max_retries:
-                time.sleep(2 ** attempt)
+                time.sleep(RETRY_BACKOFF_BASE * 2 ** attempt)
                 continue
             raise
 
@@ -134,7 +143,7 @@ async def fetch_table_async(
     quarter: int | None = None,
     frequency: str | None = None,
     timeout: float = 60.0,
-    max_retries: int = 3,
+    max_retries: int = MAX_RETRIES,
 ) -> bytes:
     """Async counterpart to fetch_table. Same semantics, same retry policy."""
     form = _build_form(table, geo, year, month, quarter, frequency)
@@ -147,11 +156,11 @@ async def fetch_table_async(
             return response.content
         except httpx.HTTPStatusError as e:
             if e.response.status_code >= 500 and attempt < max_retries:
-                await asyncio.sleep(2 ** attempt)
+                await asyncio.sleep(RETRY_BACKOFF_BASE * 2 ** attempt)
                 continue
             raise
         except httpx.TransportError:
             if attempt < max_retries:
-                await asyncio.sleep(2 ** attempt)
+                await asyncio.sleep(RETRY_BACKOFF_BASE * 2 ** attempt)
                 continue
             raise

@@ -3,7 +3,7 @@ for non-CMA-member CSDs (a removable optimization documented in
 validity.py's module docstring)."""
 
 from cmhc.catalogue import Table
-from cmhc.geographies import CSDS_ONTARIO, CSDS_ONTARIO_CMA
+from cmhc.geographies import CSDS_ONTARIO, CSDS_ONTARIO_CMA, CTS_ONTARIO
 from cmhc.validity import is_valid_for_geo
 
 
@@ -47,6 +47,23 @@ def test_non_cma_csd_still_accepts_csd_and_timeseries_breakdowns():
     non_cma_csd = next(g for uid, g in CSDS_ONTARIO.items() if uid not in cma_uids)
     assert is_valid_for_geo(_table("Census Subdivision"), non_cma_csd)
     assert is_valid_for_geo(_table("Historical Time Periods"), non_cma_csd)
+
+
+def test_ct_skips_sub_cma_geographic_breakdowns():
+    """At a CT (the leaf), sub-CMA geographic breakdowns echo the CT's own row —
+    byte-identical to each other and to the time series' latest period — so they
+    are redundant and rejected. Verified live for Rms (2026-06-16)."""
+    ct = next(iter(CTS_ONTARIO.values()))
+    for breakdown in ("Survey Zones", "Census Subdivision", "Neighbourhoods", "Census Tracts"):
+        assert not is_valid_for_geo(_table(breakdown), ct), \
+            f"CT should reject redundant sub-CMA breakdown {breakdown!r}"
+
+
+def test_ct_keeps_time_series_breakdown():
+    """Historical Time Periods is a superset of every CT-level snapshot, so it's
+    the breakdown we keep at CT level."""
+    ct = next(iter(CTS_ONTARIO.values()))
+    assert is_valid_for_geo(_table("Historical Time Periods"), ct)
 
 
 def test_parent_breakdowns_always_rejected_for_csd():

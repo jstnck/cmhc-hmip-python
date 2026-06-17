@@ -48,7 +48,7 @@ build_static_parquet.py  →  matrix engine (MatrixSpec + catalogue provenance, 
 | `tidy.py` | HMIP wide CSV → long polars DataFrame. Handles reliability codes, suppression sentinels, snapshot vs time-series shapes. `_parse_period` converts `'Feb 1990'` / `'1990 March'` / `'1991/Q1'` to start-of-period `date`. Snapshot tables get their period from the CSV subtitle via `_extract_subtitle_period`. Single-geo query rows (empty first cell) preserved as `sub_geography=null`. Melt delegated to `wide.py`. |
 | `wide.py` | Pure shape primitive: `wide_to_long(df, index, is_reliability, parse_value)` melts a wide matrix (value columns each optionally trailed by a reliability column) into long `(index, category, value, reliability)`. Shared by `tidy.py` (HMIP) and the static engine; the reliability-detection and value-parsing rules are injected, so neither surface special-cases the other. |
 | `validity.py` | `is_valid_for_geo(table, geo)` filters job lists for Canada/Province/CMA/CSD/CT geos (HMIP silently returns garbage for invalid combos). `BROKEN_TABLE_IDS` denylist for known-bad table_ids. |
-| `bulk.py` | The async orchestrator. `bulk_pull(geographies, *, label, surveys=None, concurrency=None, refresh_empty_days=None)` walks catalogue × geos, filters via `is_valid_for_geo` (and optional survey allowlist), fetches in parallel under a semaphore, writes CSVs / empty markers, emits per-attempt JSONL log. |
+| `bulk.py` | The async orchestrator. `bulk_pull(geographies, *, label, surveys=None, concurrency=None, refresh_empty_days=None, exclude_tables=None)` walks catalogue × geos, filters via `is_valid_for_geo` (and optional survey allowlist / `exclude_tables` run-time skip), fetches in parallel under a semaphore, writes CSVs / empty markers, emits per-attempt JSONL log. `exclude_tables` is a this-run-only skip (e.g. tables HMIP 500s on at a given geo level) — it does not touch the catalogue or validity. |
 | `config.py` | `PROJECT_ROOT`, `RAW_DIR`, `CLEAN_DIR`, `EMPTY_DIR`, `LOG_DIR`, `STATIC_RAW_DIR`, `STATIC_CATALOGUE`, `REQUEST_DELAY`, `CONCURRENCY`. |
 | `static/` | Non-HMIP static-table harvest. `schema.py` — the shared long-format contract (`COLUMNS` = HMIP schema + `source`). `catalogue.py` — accessor over `static_catalogue.json` (slug→`table_id`, section→`survey`, asset meta, page title). `matrix.py` — the configurable engine: `MatrixSpec`/`Sheets` + `run()` (header detection, sheet-name-as-dimension, period parsing, sentinels; melt via `wide.py`). `specs.py` — typed recipe registry, slug→`MatrixSpec`. `runner.py` — `parse(table_id, path)`. |
 
@@ -59,11 +59,11 @@ build_static_parquet.py  →  matrix engine (MatrixSpec + catalogue provenance, 
 | `pull_canada_and_provinces.py` | Pull at Canada + provincial scope. |
 | `pull_cmas.py` | `--province NAME` (filters by `cma_uid` prefix), `--surveys`, `--concurrency`, `--refresh-empty-days`. |
 | `pull_csds.py` | Ontario CSDs. Defaults to ~168 CMA-member subset; `--all` for all ~574. Same `--surveys` / `--concurrency` / `--refresh-empty-days` flags. |
-| `pull_cts.py` | Ontario CTs (~2,382). Same flags as `pull_csds.py` (no `--all`; CTs only exist inside CMAs). |
+| `pull_cts.py` | Ontario CTs (~2,382). Same flags as `pull_csds.py` (no `--all`; CTs only exist inside CMAs), plus `--exclude-tables IDS` to skip tables HMIP 500s on at CT level (run-time only — see DATA_DISCOVERY.md 2026-06-17). |
 | `extract_geo_lookups.py` | One-shot: download `.rda` lookup tables from mountainMath/cmhc, write Ontario-filtered CSVs into `src/cmhc/data/`. Re-run when the R package updates. |
 | `build_boundaries.py` | One-shot: download Statistics Canada 2021 cartographic boundary files (CSD + CT), filter to Ontario, reproject to WGS84, topology-simplify via `topojson` package, write GeoJSON to `data/clean/boundaries_*.geojson`. |
 | `build_parquet.py` | Walk raw, tidy, concat by table_id, write parquet. Mtime-idempotent — full rebuild requires `rm -rf data/clean/` (needed when `tidy.py` schema changes). |
-| `build_dmt_rental.py` | Tidy parquet → single-file DuckDB data mart for Ontario rental (Rms + Srms). Star schema + materialized metric tables. ~4 s build, ~17 MB output. See [DATAMART.md](DATAMART.md). |
+| `build_dmt_rental.py` | Tidy parquet → single-file DuckDB data mart for Ontario rental (Rms + Srms), Province→CMA→CSD→CT. Star schema + materialized metric tables. ~38 MB output. See [DATAMART.md](DATAMART.md). |
 | `example_queries.py` | DuckDB query demos against the cleaned parquet. |
 | `build_static_catalogue.py` | Discover static-data-table `.xlsx`/`.xls` assets on cmhc-schl.gc.ca. `--render` (Playwright, `scrape` group) captures JS-injected downloads. 128 of 136 pages have a captured asset. |
 | `download_static.py` | Fetch every catalogued static asset → `data/raw/static/{section}/`. Idempotent (skips existing unless `--force`). |
@@ -126,7 +126,7 @@ All 128 catalogued assets downloaded to `data/raw/static/` (~50 MB; 118 xlsx + 1
 
 ### Data mart
 
-`data/marts/cmhc_rental.duckdb` — Ontario rental extract for analyst handoff. 540,993 observations, 14 metrics, 210 geographies (190 with data + 20 placeholders for fully-suppressed CSDs), 25 materialized metric tables, ~17 MB, ~4 s build. See [DATAMART.md](DATAMART.md). Rebuild: `uv run python scripts/build_dmt_rental.py`.
+`data/marts/cmhc_rental.duckdb` — Ontario rental extract for analyst handoff. 1,828,923 observations, 14 metrics, 1,799 geographies (1 province + 42 CMAs + 147 CSDs with data + 20 placeholder CSDs + 1,589 CTs), 25 materialized metric tables, ~38 MB. CT level added 2026-06-17 (Rms only; ~38% of CT cells populated, rest confidentiality-suppressed). See [DATAMART.md](DATAMART.md). Rebuild: `uv run python scripts/build_dmt_rental.py`.
 
 **Parquet schema (uniform):**
 ```
@@ -199,7 +199,7 @@ Discovery write-ups live in [DATA_DISCOVERY.md](DATA_DISCOVERY.md) — append-on
 | 7 | ~~`tidy()` losing snapshot period + single-geo rows~~ | RESOLVED 2026-05-23 | Added subtitle period extraction; preserve empty-index rows when no other rows exist. Recovered ~30k previously-silenced parquet rows. |
 | 8 | ~~CSD/CT pulls done before issues 6+7 fixed → stale empty markers~~ | RESOLVED 2026-06-09 | `pull_csds.py --refresh-empty-days 0` rerun; CSD-level Rms now expanded from ~140k rows to ~440k. CT pull still pending (item 9). |
 | 9 | ~~CMHC vs StatCan CSD-name slash/hyphen drift dropping 5 CSDs from mart~~ | RESOLVED 2026-06-10 | Added `cmhc.geographies.normalize_name()`. Mart now matches both forms. |
-| 10 | Ontario CT pull never run | Medium | ~230k requests, overnight job at `--concurrency 3`. Biggest remaining Ontario-rental coverage gap. |
+| 10 | Ontario CT pull in progress | Medium | After the 2026-06-16 leaf-redundancy guard (~217k→~45k requests) + the 2026-06-17 exclusion of 11 CT-500 tables, the run is 15 good Rms tables/CT (3 done, 12 remaining). Command + excluded IDs under "Proposed next steps → Immediate". Biggest remaining Ontario-rental coverage gap. |
 
 ### HMIP 500s on specific (table, CMA) pairs
 
@@ -221,7 +221,12 @@ We deliberately do **not** denylist these — denylisting at the `table_id` leve
 ## Proposed next steps (in rough priority order)
 
 ### Immediate
-1. **Ontario CT pull (Rms + Srms)** — `uv run python scripts/pull_cts.py --surveys Rms,Srms --concurrency 3`. ~230k requests, overnight at the safer rate. Unlocks neighbourhood-level rental. Biggest remaining Ontario-rental coverage gap.
+1. **Ontario CT pull (Rms)** — 11 tables 500 at CT level and must be excluded (4 derived Rms series + all 7 Srms, which doesn't publish at tract level; see DATA_DISCOVERY.md 2026-06-17). Working command:
+   ```
+   uv run python scripts/pull_cts.py --surveys Rms --concurrency 3 \
+     --exclude-tables 2.2.4,2.2.33,2.2.12,2.2.31,4.2.1,4.2.3,4.2.4,4.2.5,4.4.2,4.6.1,4.6.2
+   ```
+   15 good Rms tables/CT (3 done + 12 remaining). Unlocks neighbourhood-level rental — biggest remaining Ontario-rental coverage gap. Note: CT-level Rms is heavily confidentiality-suppressed (`**`) — expect a high empty/suppressed fraction. Re-probe the excluded IDs on a later pull (they may be intermittently up; errors aren't cached, so dropping them from the flag backfills automatically).
 2. **Refresh Census / Seniors / Core Housing Need at Ontario CMA** with `--refresh-empty-days 0`. The 2026-06-09 Srms recovery showed pre-fix empty markers were hiding 4 of 8 publishing CMAs; the same drift likely applies to these surveys.
 3. **Pull remaining provinces' CMAs** — `pull_cmas.py --province NAME` for BC, Alberta, Quebec, etc. Each ~10 min at concurrency=5. Currently optional; widen scope only on explicit ask.
 

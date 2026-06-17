@@ -3,6 +3,8 @@
 HMIP doesn't enforce this — invalid combos silently return zeros or garbage.
 So we filter client-side based on what each table is structured for.
 
+Two breakdown-pruning optimizations live in `is_valid_for_geo`:
+
 REMOVABLE OPTIMIZATION: non-CMA-member CSDs skip CMA-scoped breakdowns
 (Survey Zones / Neighbourhoods / Census Tracts) since those geographies are
 defined inside CMAs. Empirically backed by 881/881 empty results in the
@@ -11,6 +13,16 @@ defined inside CMAs. Empirically backed by 881/881 empty results in the
 or CMHC starts publishing at the non-CMA level, remove the `CMA_SCOPED_*`
 guard in `is_valid_for_geo`. Currently scoped to Ontario only — extends
 automatically once other-province CMA-member lists exist.
+
+LEAF-REDUNDANCY OPTIMIZATION (lossless, not speculative): a CT is the bottom of
+the hierarchy, so a sub-CMA *geographic* breakdown queried at a CT enumerates
+nothing — it echoes the CT's own single row. Verified live (Rms, 2026-06-16):
+the four `SUB_CMA_BREAKDOWNS` are byte-identical to each other at a CT AND equal
+the latest period of the corresponding Historical Time Periods table, which is
+therefore a complete superset. So they're dropped for `TYPE_CT`, cutting the
+Ontario CT Rms sweep 91→19 tables/CT with no data loss. Byte-verified for Rms
+only; Census/Scss share the structure but re-confirm with probe_table.py before
+a CT pull of those surveys. See docs/DATA_DISCOVERY.md 2026-06-16.
 """
 
 from cmhc.catalogue import Table
@@ -93,6 +105,19 @@ def is_valid_for_geo(table: Table, geo: Geography) -> bool:
         # explicitly a parent-geography breakdown. Generally permissive — an
         # invalid combo just becomes an empty marker, not lost data.
         if table.breakdown in ("Provinces", "Centres"):
+            return False
+        # A CT is the leaf of the geography hierarchy. A sub-CMA *geographic*
+        # breakdown (Survey Zones / CSD / Neighbourhoods / Census Tracts) queried
+        # AT a CT can't enumerate children — it echoes the CT's own single row.
+        # Verified live (Rms, 2026-06-16): the four are byte-identical to each
+        # other AND equal the latest period of the corresponding Historical Time
+        # Periods table, which is therefore a complete superset. So they are pure
+        # redundancy at a leaf; drop them. Cuts the Ontario CT Rms sweep from 91
+        # to 19 tables/CT (~217k → ~45k requests) with no data loss. (Srms is
+        # already time-series-only. Census/Scss follow the same structure but
+        # weren't byte-verified — re-confirm with probe_table.py before a CT pull
+        # of those surveys.)
+        if geo.geography_type_id == TYPE_CT and table.breakdown in SUB_CMA_BREAKDOWNS:
             return False
         # Optimization (removable — see module docstring): non-CMA-member CSDs
         # have no Survey Zones / Neighbourhoods / CTs inside them, so skip

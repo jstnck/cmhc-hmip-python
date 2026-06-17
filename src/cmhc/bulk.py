@@ -102,6 +102,7 @@ async def bulk_pull(
     surveys: Iterable[str] | None = None,
     concurrency: int | None = None,
     refresh_empty_days: int | None = None,
+    exclude_tables: Iterable[str] | None = None,
 ) -> dict[str, int]:
     """Pull every valid (table, geography) combination. Returns counts.
 
@@ -112,17 +113,28 @@ async def bulk_pull(
                            for the in-scope (table, geo) jobs. Lets HMIP re-confirm
                            that combos still have no data, without wholesale wiping
                            the empty-marker cache.
+    `exclude_tables`     — table_ids to skip for this run only. A run-time choice,
+                           not a catalogue or validity edit: use it to sidestep tables
+                           HMIP is 500ing on at this geo level so the run doesn't grind
+                           thousands of doomed requests. Leaves the data model's "this
+                           combo is valid" claim untouched — drop the flag and re-run to
+                           re-attempt (errors are never cached).
     """
     geos = list(geographies)
     survey_set = set(surveys) if surveys else None
-    catalogue = [t for t in CATALOGUE if survey_set is None or t.survey in survey_set]
+    exclude = set(exclude_tables) if exclude_tables else set()
+    catalogue = [
+        t for t in CATALOGUE
+        if (survey_set is None or t.survey in survey_set) and t.table_id not in exclude
+    ]
     jobs: list[tuple[Table, Geography]] = [
         (t, g) for t in catalogue for g in geos if is_valid_for_geo(t, g)
     ]
 
     effective_conc = concurrency if concurrency is not None else CONCURRENCY
     survey_note = f" surveys={sorted(survey_set)}" if survey_set else ""
-    print(f"{len(jobs)} valid (table, {label}) jobs queued (concurrency={effective_conc}){survey_note}")
+    exclude_note = f" excluding {len(exclude)} table(s)={sorted(exclude)}" if exclude else ""
+    print(f"{len(jobs)} valid (table, {label}) jobs queued (concurrency={effective_conc}){survey_note}{exclude_note}")
 
     if refresh_empty_days is not None:
         cutoff = time.time() - refresh_empty_days * 86400
