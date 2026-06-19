@@ -2,6 +2,9 @@
 
 A single-file DuckDB extract of CMHC rental market data for Ontario. Built from the project's parquet archive (`data/clean/Rms/*.parquet`, `data/clean/Srms/*.parquet`) into one portable `.duckdb` file that an analyst can query directly with SQL.
 
+> Looking for "how do I query X"? See the [DATAMART_GUIDE.md](../data/marts/DATAMART_GUIDE.md) —
+> an ERD plus an example-query cookbook. This doc is the schema/conventions reference.
+
 This doc covers:
 - What's in the file and how it's structured
 - Column conventions the analyst needs to know
@@ -56,14 +59,15 @@ One row per (metric, geography, period, dimension, category) cell.
 | `metric_id` | SMALLINT | FK → `metrics` |
 | `geo_id` | VARCHAR | FK → `geographies` |
 | `period` | DATE | Start-of-period date |
-| `dimension` | VARCHAR | `'Bedroom Type'`, `'Year of Construction'`, `'Structure Size'`, `'Rent Range'`, `'Rent Quartile'`, or NULL for summary stats |
+| `dimension` | VARCHAR | `'Bedroom Type'`, `'Year of Construction'`, `'Structure Size'`, `'Rent Ranges'`, `'Rent Quartiles'`, `'Dwelling Type'` |
 | `category` | VARCHAR | Value within the dimension — e.g. `'2 Bedroom'`, `'Before 1960'`, `'Total'` |
 | `value` | DOUBLE | NULL when `is_suppressed` is TRUE |
-| `reliability` | CHAR(1) | `'a'` (excellent) → `'d'` (poor); NULL when suppressed |
-| `is_suppressed` | BOOLEAN | TRUE when CMHC withheld for confidentiality (`**` in raw) |
+| `reliability` | VARCHAR | `'a'` (excellent) → `'d'` (poor); `'n/a'` when the table carries no reliability info (e.g. universe counts, rent change); NULL **only** when suppressed |
+| `is_suppressed` | BOOLEAN | TRUE when CMHC withheld for confidentiality (`**` in raw). Invariant: `reliability IS NULL` ⇔ `is_suppressed` |
+| `is_canonical` | BOOLEAN | TRUE for exactly one row per `(metric_id, geo_id, period, dimension, category)`. CMHC publishes the same value through several `table_id` paths; the star keeps them all, this flags the canonical one. **Filter `WHERE is_canonical` before any SUM/COUNT.** The materialized metric tables are already deduplicated to canonical rows. See "Duplicate rows" below |
 | `source_survey` | VARCHAR | `'Rms'` or `'Srms'` |
 | `table_id` | VARCHAR | CMHC coordinate — e.g. `'2.1.1.2'`. You don't need it for queries; it's there for HMIP cross-reference |
-| `updated_at` | TIMESTAMP | mtime of the source parquet; same value for every row sharing a `table_id` |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | mtime of the source parquet; same value for every row sharing a `table_id` |
 
 ### `metrics`
 
@@ -71,7 +75,7 @@ The metric inventory. `SELECT * FROM metrics` is the catalogue.
 
 | column | type | notes |
 |---|---|---|
-| `metric_id` | SMALLINT | PK |
+| `metric_id` | BIGINT | PK |
 | `metric_name` | VARCHAR | `'Vacancy Rate'`, `'Average Rent'`, `'Condo Vacancy Rate'`, … |
 | `market` | VARCHAR | `'Primary'` (Rms) or `'Secondary'` (Srms) |
 | `source_survey` | VARCHAR | `'Rms'` or `'Srms'` |
@@ -105,7 +109,8 @@ Single-row table with build provenance.
 | `built_at_utc` | TIMESTAMP | When `build_dmt_rental.py` ran |
 | `source_parquet_newest` | TIMESTAMP | Newest source-parquet mtime — the freshest possible data in this file |
 | `portal_commit` | VARCHAR | git rev of the portal repo at build time |
-| `n_observations` | BIGINT | Row count in `rental_observations` |
+| `n_observations` | BIGINT | Row count in `rental_observations` (all publication paths) |
+| `n_canonical` | BIGINT | Rows with `is_canonical = TRUE` — one per logical observation; the rest are duplicate publication paths |
 | `n_suppressed` | BIGINT | Count of rows with `is_suppressed = TRUE` |
 | `n_cma` | BIGINT | Distinct Ontario CMAs present in `geographies` |
 | `n_csd_with_data` | BIGINT | Ontario CSDs with at least one observation |
@@ -126,10 +131,13 @@ Common column shape (illustrated for `average_rent_by_bedroom`):
 | `geo_level`, `geo_name`, `province`, `cma` | VARCHAR (geography, pre-joined) |
 | `period`, `period_year` | DATE, SMALLINT |
 | `bedroom_type` | VARCHAR (the metric's dimension, renamed) |
+| `sort_order` | SMALLINT (display order for the dimension — `ORDER BY sort_order` for logical, not alphabetical, output) |
 | `avg_rent_dollars` (or `vacancy_pct`, etc.) | DOUBLE (the value, renamed + unit-suffixed) |
-| `reliability` | CHAR(1) |
+| `reliability` | VARCHAR (`'a'`–`'d'`, or `'n/a'` when no reliability info) |
 | `is_suppressed` | BOOLEAN |
 | `source_survey`, `table_id`, `updated_at` | VARCHAR, VARCHAR, TIMESTAMP |
+
+Rows are already deduplicated to one canonical path per logical cell (the star's `WHERE is_canonical`), so SUM/COUNT/AVG over these tables are safe without a window function.
 
 **Table list** (25 materialized metric tables; authoritative source is `SHOW TABLES` + `SELECT * FROM metrics`):
 
@@ -168,9 +176,9 @@ Srms (7):
 
 A handful of decisions are baked into every row. Worth knowing before writing queries.
 
-**Suppression.** `is_suppressed = TRUE` when CMHC withheld the cell for confidentiality (raw `**`). Detected as `value IS NULL AND reliability IS NULL` — both fields go null together in the suppression case. Other nulls (rare) get `is_suppressed = FALSE`. Always check `is_suppressed` before treating a missing value as zero or interpolating; CMHC suppression is concentrated in small CSDs and would bias any aggregate computed without awareness of it.
+**Suppression.** `is_suppressed = TRUE` when CMHC withheld the cell for confidentiality (raw `**`). Detected as `value IS NULL AND reliability IS NULL` — both fields go null together in the suppression case. Other nulls (rare) get `is_suppressed = FALSE`. Always check `is_suppressed` before treating a missing value as zero or interpolating; CMHC suppression is concentrated in small CSDs and tracts, and would bias any aggregate computed without awareness of it. Since CT data was added, suppressed cells are a *majority* of the fact table — CT rental is heavily withheld for confidentiality — so this is not an edge case. See `_meta.n_suppressed` / `_meta.n_observations` for the live counts rather than assuming a figure.
 
-**Reliability codes.** `'a'` (excellent) → `'d'` (poor), based on CMHC's published reliability framework. Filter `WHERE reliability IN ('a','b')` for higher-confidence analyses. NULL means either suppressed or the table doesn't carry reliability information.
+**Reliability codes.** `'a'` (excellent) → `'d'` (poor), based on CMHC's published reliability framework. Filter `WHERE reliability IN ('a','b')` for higher-confidence analyses. Tables that don't carry reliability at all (universe counts, average rent change) use the sentinel `'n/a'`; `NULL` reliability now means **suppressed only** (`reliability IS NULL` ⇔ `is_suppressed`). This split matters: before it existed, `WHERE reliability IN ('a','b')` silently discarded ~335k present-but-unrated values that looked indistinguishable from suppressed ones.
 
 **Period.** Start-of-period date. RMS readings are annually surveyed in October (most rows are dated Oct 1); SRMS is published per release. Use `period_year` on the metric tables for groupings — already extracted.
 
@@ -182,24 +190,24 @@ A handful of decisions are baked into every row. Worth knowing before writing qu
 
 **Geography name normalization.** StatCan's reference data uses forward-slash compound names (`Guelph/Eramosa`, `Greater Sudbury / Grand Sudbury`); CMHC's HMIP returns the hyphen form (`Guelph-Eramosa`, `Greater Sudbury - Grand Sudbury`). The mart canonicalizes on the hyphen form via `cmhc.geographies.normalize_name`. If you join external StatCan data against this mart on `geo_name`, normalize the StatCan side first. The full `csduid` / `cma_uid` are the safer join keys.
 
-**Duplicate rows per logical observation.** A single CMHC measurement can land in the mart multiple times. CMHC publishes the same value through several `table_id` paths — e.g., the 2025 Toronto 2-bedroom average rent appears in `2.1.11.2` (Ontario province queried at CMA breakdown), `2.2.11` (Toronto queried as a time series), and similar combinations. Each path is a separate row in `rental_observations` (and therefore in the materialized metric tables) with the same `geo_name`, `period`, `dimension`, `category`, `value`, and `reliability` — but a different `table_id`.
+**Duplicate rows per logical observation.** A single CMHC measurement can land in the star multiple times. CMHC publishes the same value through several `table_id` paths — e.g., the 2025 Toronto 2-bedroom average rent appears in `2.1.11.2` (Ontario province queried at CMA breakdown), `2.2.11` (Toronto queried as a time series), and similar combinations. Up to 5× duplication occurs, **concentrated in the recent cross-sectional data analysts query most** (the latest snapshot is published through every path; deep history through only one). Each path is a separate row in `rental_observations` with the same `geo_name`, `period`, `dimension`, `category`, `value`, and `reliability` — but a different `table_id`.
 
-What this means for queries:
+This is handled for you:
 
-- **Aggregations that average or take min/max are safe** — `AVG()` over identical values is still that value.
-- **Aggregations that sum or count are NOT safe** without deduplication. `SELECT SUM(avg_rent_dollars) ...` will multiply by however many paths CMHC publishes the cell through (typically 2–3 for CMA rows).
-- **To deduplicate**, pick one row per logical observation. The simplest rule is to keep the row with the smallest `table_id` per `(geo_name, period, dimension, category)` — or whichever subset of columns matches your grouping. Example:
+- **The materialized metric tables are deduplicated** — they select the star's canonical row, so they hold exactly one row per logical cell. SUM/COUNT/AVG over them are correct, no window function needed.
+- **The star (`rental_observations`) keeps every path** for full provenance, and flags the canonical one with `is_canonical`. When querying the star, add `WHERE is_canonical` before any SUM/COUNT (AVG/MIN/MAX over identical values are unaffected). Example:
 
 ```sql
-SELECT * EXCLUDE (table_id) FROM (
-    SELECT *, ROW_NUMBER() OVER (
-        PARTITION BY geo_name, period, bedroom_type ORDER BY table_id
-    ) AS rn
-    FROM average_rent_by_bedroom
-) WHERE rn = 1;
+SELECT geo_name, period, value
+FROM   rental_observations o
+JOIN   geographies g USING (geo_id)
+JOIN   metrics     m USING (metric_id)
+WHERE  m.metric_name = 'Average Rent' AND o.dimension = 'Bedroom Type'
+  AND  o.category = '2 Bedroom'
+  AND  o.is_canonical;
 ```
 
-No `is_canonical` flag is provided — picking the canonical breakdown is task-specific (sometimes you want the time-series source, sometimes the snapshot-with-sub_geography one).
+Canonical choice: one row per `(metric_id, geo_id, period, dimension, category)`, preferring the Historical Time Periods (time-series) `table_id` for uniform provenance across a series, then the smallest `table_id`. `_meta.n_canonical` vs `_meta.n_observations` reports how many rows the flag selects.
 
 ### Placeholder rows in `geographies`
 

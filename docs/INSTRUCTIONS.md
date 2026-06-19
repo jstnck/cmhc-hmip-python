@@ -51,6 +51,7 @@ Confirmed-absent data is worth logging too. Otherwise the next person redoes the
 - DataFrames are polars — do NOT add pandas.
 - Add a regression test when fixing a bug. The bedroom-filter bug and the `tidy()` snapshot-period bug both sat for months because nothing prevented their return.
 - Update `docs/DATA_DISCOVERY.md` after any non-trivial investigation (positive or negative result).
+- Don't freeze a queryable number in prose. If a `count(*)` / `SHOW TABLES` / `_meta` lookup can produce it, point to that instead of writing the figure into a doc — prose copies drift the moment data is re-pulled. Exceptions: stable structural counts (state once, in one place) and dated evidence in `DATA_DISCOVERY.md` (frozen by design — leave it).
 - Use canonical IDs (CSDUID, CMAPUID, CMA_UID) for joins. When joining on names is unavoidable, pass both sides through `cmhc.geographies.normalize_name`.
 - Before presenting options or building speculatively, ask the user. CLAUDE.md global rule: "When presenting the user with options, wait for the user response. DO NOT just start writing code."
 

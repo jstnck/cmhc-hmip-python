@@ -98,22 +98,22 @@ Raw zips cached at `data/raw/boundaries/` to avoid re-downloading (~50 MB). Buil
 
 ## Current data
 
-**187 logical tables, 1,135,502 rows across 203 distinct geographies** (Canada + 13 provinces + 42 CMAs + 147 Ontario CSDs):
+Coverage spans Canada + 13 provinces + 42 Ontario CMAs + 147 Ontario CSDs + 1,589 Ontario CTs. Row counts change every pull — get live numbers from the data, not this doc: `SELECT count(*) FROM 'data/clean/**/*.parquet'`.
 
-| Survey | Tables | Rows | Coverage |
-|---|---|---|---|
-| Rms | 121 | 569,455 | Vacancy / Availability / Rent / Universe — by Bedroom Type, Year of Construction, Structure Size, Rent Range, Rent Quartile, plus Summary Statistics. Canada + provinces + Ontario CMAs + Ontario CMA-member CSDs. Massive 2026-06-09 recovery: bedroom-filter + tidy fixes plus `--refresh-empty-days 0` re-pull at all sub-CMA levels recovered ~461k rows hidden by stale empty markers. |
-| Scss | 34 | 548,165 | Starts, Completions, Intended Market, Unabsorbed Inventory — snapshot, Canada time-series, + Ontario CMAs |
-| Census | 12 | 10,409 | Census-derived counts (Ontario CMAs) |
-| Srms | 7 | 3,432 | Secondary Rental Market (condo / suite) — 8 Ontario CMAs that publish Srms: Barrie, Hamilton, Kitchener – Cambridge – Waterloo, London, Ottawa, St. Catharines – Niagara, Toronto, Windsor. The other 35 Ontario CMAs return empty (confirmed 2026-06-09). |
-| Core Housing Need | 3 | 2,466 | Core housing need indicators — Ontario CMAs |
-| Seniors | 10 | 1,575 | Seniors housing — Ontario CMAs (incl. snapshot-shape tables) |
+| Survey | Coverage |
+|---|---|
+| Rms | Vacancy / Availability / Rent / Universe — by Bedroom Type, Year of Construction, Structure Size, Rent Range, Rent Quartile, plus Summary Statistics. Canada + provinces + Ontario CMAs + Ontario CMA-member CSDs + Ontario CTs (15 tract-publishing tables; 2026-06-17). Massive 2026-06-09 recovery: bedroom-filter + tidy fixes plus `--refresh-empty-days 0` re-pull at all sub-CMA levels recovered rows hidden by stale empty markers. |
+| Scss | Starts, Completions, Intended Market, Unabsorbed Inventory — snapshot, Canada time-series, + Ontario CMAs |
+| Census | Census-derived counts (Ontario CMAs) |
+| Srms | Secondary Rental Market (condo / suite) — 8 Ontario CMAs that publish Srms: Barrie, Hamilton, Kitchener – Cambridge – Waterloo, London, Ottawa, St. Catharines – Niagara, Toronto, Windsor. The other 35 Ontario CMAs return empty (confirmed 2026-06-09). |
+| Core Housing Need | Core housing need indicators (Ontario CMAs) |
+| Seniors | Seniors housing — Ontario CMAs (incl. snapshot-shape tables) |
 
-**14,646 raw CSVs + 3,802 empty markers** in `data/raw/`. Empty markers record (table, geo) combos that HMIP confirmed have no data — saves us from re-fetching them. The marker count dropped from a 2026-05-23 high of ~5,200 as the 2026-06-09 CSD re-pull converted thousands of stale markers into real CSVs.
+`data/raw/` holds the raw CSVs plus empty markers — (table, geo) combos HMIP confirmed have no data, so we don't re-fetch them. The 2026-06-17 Ontario CT pull (15 Rms tables × 2,382 CTs) is heavily confidentiality-suppressed, so most CT cells land as empty markers.
 
 ### Static data tables (non-HMIP)
 
-All 128 catalogued assets downloaded to `data/raw/static/` (~50 MB; 118 xlsx + 10 xls). **18 tables spec'd and built to `data/clean/static/` — 19,194 rows** (`source='static'`):
+All 128 catalogued assets downloaded to `data/raw/static/` (~50 MB; 118 xlsx + 10 xls). **18 tables spec'd and built to `data/clean/static/`** (`source='static'`):
 
 | Section | Spec'd / on disk | Notes |
 |---|---|---|
@@ -126,7 +126,9 @@ All 128 catalogued assets downloaded to `data/raw/static/` (~50 MB; 118 xlsx + 1
 
 ### Data mart
 
-`data/marts/cmhc_rental.duckdb` — Ontario rental extract for analyst handoff. 1,828,923 observations, 14 metrics, 1,799 geographies (1 province + 42 CMAs + 147 CSDs with data + 20 placeholder CSDs + 1,589 CTs), 25 materialized metric tables, ~38 MB. CT level added 2026-06-17 (Rms only; ~38% of CT cells populated, rest confidentiality-suppressed). See [DATAMART.md](DATAMART.md). Rebuild: `uv run python scripts/build_dmt_rental.py`.
+`data/marts/cmhc_rental.duckdb` — Ontario rental extract for analyst handoff. Star schema + 25 materialized metric tables, ~39 MB. CT level added 2026-06-17 (Rms only; CT rental is heavily confidentiality-suppressed). Live counts (observations, canonical, suppressed, geographies) and the coverage statement are in the mart's `_meta` table — query it rather than restating here. See [DATAMART.md](DATAMART.md). Rebuild: `uv run python scripts/build_dmt_rental.py`.
+
+**Correctness pass (2026-06-18, from a hands-on mart evaluation):** (#1) the same value published through 2–5 `table_id` paths silently triplicated the headline cross-section query — added `is_canonical` (star keeps all paths; materialized tables filter to one row per logical cell). (#3) `sort_order` was alphabetical (`Studio` after `Total`) and absent from the metric tables — replaced with an explicit per-dimension order and joined in. (#4) `reliability IS NULL` was overloaded (suppressed vs no-info) and silently dropped ~335k valid rows from `reliability IN ('a','b')` — non-suppressed unrated rows now carry the `'n/a'` sentinel, so `NULL ⇔ is_suppressed`. (#2) `Summary Statistics` (a repackaging of metrics 1–6) dropped from the mart. Regression tests in `tests/test_dmt_rental.py`.
 
 **Parquet schema (uniform):**
 ```
@@ -197,9 +199,9 @@ Discovery write-ups live in [DATA_DISCOVERY.md](DATA_DISCOVERY.md) — append-on
 | 5 | ~~Snapshot CSVs with no leading-comma header~~ | RESOLVED | `_tidy_snapshot()` fallback. |
 | 6 | ~~RMS bedroom filter silently suppressing 9 dimensions~~ | RESOLVED 2026-05-23 | Dropped from `_RMS_SERIES`. Recovered Rent Ranges / Rent Quartiles / Year of Construction etc. — see DATA_DISCOVERY.md. |
 | 7 | ~~`tidy()` losing snapshot period + single-geo rows~~ | RESOLVED 2026-05-23 | Added subtitle period extraction; preserve empty-index rows when no other rows exist. Recovered ~30k previously-silenced parquet rows. |
-| 8 | ~~CSD/CT pulls done before issues 6+7 fixed → stale empty markers~~ | RESOLVED 2026-06-09 | `pull_csds.py --refresh-empty-days 0` rerun; CSD-level Rms now expanded from ~140k rows to ~440k. CT pull still pending (item 9). |
+| 8 | ~~CSD/CT pulls done before issues 6+7 fixed → stale empty markers~~ | RESOLVED 2026-06-09 | `pull_csds.py --refresh-empty-days 0` rerun; CSD-level Rms now expanded from ~140k rows to ~440k. CT pull since completed (item 10). |
 | 9 | ~~CMHC vs StatCan CSD-name slash/hyphen drift dropping 5 CSDs from mart~~ | RESOLVED 2026-06-10 | Added `cmhc.geographies.normalize_name()`. Mart now matches both forms. |
-| 10 | Ontario CT pull in progress | Medium | After the 2026-06-16 leaf-redundancy guard (~217k→~45k requests) + the 2026-06-17 exclusion of 11 CT-500 tables, the run is 15 good Rms tables/CT (3 done, 12 remaining). Command + excluded IDs under "Proposed next steps → Immediate". Biggest remaining Ontario-rental coverage gap. |
+| 10 | ~~Ontario CT pull~~ | RESOLVED 2026-06-17 | All 15 tract-publishing Rms tables pulled across 2,382 CTs (after the 2026-06-16 leaf-redundancy guard + the 2026-06-17 exclusion of 11 CT-500 tables). 1,589 CTs returned data; parquet + mart rebuilt. Biggest remaining Ontario-rental coverage gap, now closed. |
 
 ### HMIP 500s on specific (table, CMA) pairs
 
@@ -221,14 +223,8 @@ We deliberately do **not** denylist these — denylisting at the `table_id` leve
 ## Proposed next steps (in rough priority order)
 
 ### Immediate
-1. **Ontario CT pull (Rms)** — 11 tables 500 at CT level and must be excluded (4 derived Rms series + all 7 Srms, which doesn't publish at tract level; see DATA_DISCOVERY.md 2026-06-17). Working command:
-   ```
-   uv run python scripts/pull_cts.py --surveys Rms --concurrency 3 \
-     --exclude-tables 2.2.4,2.2.33,2.2.12,2.2.31,4.2.1,4.2.3,4.2.4,4.2.5,4.4.2,4.6.1,4.6.2
-   ```
-   15 good Rms tables/CT (3 done + 12 remaining). Unlocks neighbourhood-level rental — biggest remaining Ontario-rental coverage gap. Note: CT-level Rms is heavily confidentiality-suppressed (`**`) — expect a high empty/suppressed fraction. Re-probe the excluded IDs on a later pull (they may be intermittently up; errors aren't cached, so dropping them from the flag backfills automatically).
-2. **Refresh Census / Seniors / Core Housing Need at Ontario CMA** with `--refresh-empty-days 0`. The 2026-06-09 Srms recovery showed pre-fix empty markers were hiding 4 of 8 publishing CMAs; the same drift likely applies to these surveys.
-3. **Pull remaining provinces' CMAs** — `pull_cmas.py --province NAME` for BC, Alberta, Quebec, etc. Each ~10 min at concurrency=5. Currently optional; widen scope only on explicit ask.
+1. **Refresh Census / Seniors / Core Housing Need at Ontario CMA** with `--refresh-empty-days 0`. The 2026-06-09 Srms recovery showed pre-fix empty markers were hiding 4 of 8 publishing CMAs; the same drift likely applies to these surveys.
+2. **Pull remaining provinces' CMAs** — `pull_cmas.py --province NAME` for BC, Alberta, Quebec, etc. Each ~10 min at concurrency=5. Currently optional; widen scope only on explicit ask.
 
 ### Soon after
 4. **Static data tables — separate harvest, shared schema.** Second data source, structurally separate from HMIP at acquisition, converging at the schema. Full design in [PLAN.md](PLAN.md). Pipeline is built end-to-end (catalogue → download → matrix engine → parquet); **18 tables spec'd, ~19k rows** (see "Static data tables" under Current data). Remaining:
@@ -249,6 +245,7 @@ We deliberately do **not** denylist these — denylisting at the `table_id` leve
 13. **Static publications crawler** — only if HMIP + Open Gov together leave gaps worth filling.
 
 ### Done since last revision
+- ✅ Ontario CT pull complete (2026-06-17): all 15 tract-publishing Rms tables across 2,382 CTs; 1,589 CTs returned data (~1.29M CT rows). Parquet + `cmhc_rental.duckdb` mart rebuilt to CT level. Closes open item #10 and the largest Ontario-rental coverage gap.
 - ✅ Massive CSD-level Rms recovery (2026-06-09): re-pulled with `--refresh-empty-days 0`, +9,326 new (table, CSD) combos returning data, +461k rows in the parquet.
 - ✅ Ontario rental data mart shipped (2026-06-10): `data/marts/cmhc_rental.duckdb`. See [DATAMART.md](DATAMART.md).
 - ✅ Shiny for Python choropleth app (`app/shiny/`) — three pages live: CSD rent map, CMA rent map, charts.

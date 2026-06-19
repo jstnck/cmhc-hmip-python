@@ -18,6 +18,7 @@ Schema, column conventions, and example queries: [docs/DATAMART.md](docs/DATAMAR
 - [docs/PROGRESS.md](docs/PROGRESS.md) — current data coverage
 - [docs/DATA_DISCOVERY.md](docs/DATA_DISCOVERY.md) — running log of catalogue drift and data-quality finds
 - [docs/DATAMART.md](docs/DATAMART.md) — rental data mart schema and usage
+- [data/marts/DATAMART_GUIDE.md](data/marts/DATAMART_GUIDE.md) — query-focused user guide (ERD + example-query cookbook); ships next to the `.duckdb` file
 - [docs/RESEARCH.md](docs/RESEARCH.md) — scouting notes on CMHC's data surfaces
 - [docs/INSTRUCTIONS.md](docs/INSTRUCTIONS.md) — project values and missing-data protocol
 

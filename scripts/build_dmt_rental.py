@@ -53,7 +53,10 @@ _METRICS = [
     ("Rms",  "Average Rent Change",   "Average Rent Change",  "Primary",   "%"),
     ("Rms",  "Median Rent",           "Median Rent",          "Primary",   "$"),
     ("Rms",  "Rental Universe",       "Rental Universe",      "Primary",   "units"),
-    ("Rms",  "Summary Statistics",    "Summary Statistics",   "Primary",   "mixed"),
+    # Summary Statistics (2.1.31 / 2.2.31) is deliberately excluded: its categories
+    # (Average Rent ($), Vacancy Rate (%), Units, …) just repackage metrics 1-6 in a
+    # different shape, with no materialized table. Dropping it keeps the fact lean and
+    # avoids a stranded, hard-to-discover metric. See PROGRESS.md correctness pass (#2).
     # Srms (Secondary)
     ("Srms", "Condo Vacancy Rate",                     "Condo Vacancy Rate",            "Secondary", "%"),
     ("Srms", "Condo Average Rent",                     "Condo Average Rent",            "Secondary", "$"),
@@ -432,15 +435,90 @@ def _attach_geo_id(fact: pl.DataFrame, geos: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+# Explicit display order per dimension. The old build sorted categories
+# alphabetically, which put 'Studio' after 'Total' and scrambled rent bands /
+# structure sizes (PROGRESS.md correctness pass, #3). 'Total' goes last; ranges/sizes go
+# low→high. Categories not listed here fall after the known ones, alphabetically.
+_CATEGORY_ORDER: dict[str, list[str]] = {
+    "Bedroom Type":         ["Studio", "1 Bedroom", "2 Bedroom", "3 Bedroom +", "Total"],
+    "Year of Construction": ["Before 1960", "1960 - 1979", "1980 - 1999", "2000 or Later", "Total"],
+    "Structure Size":       ["3-5 Units", "3-19 Units", "6-19 Units", "20-49 Units",
+                             "50-99 Units", "50-199 Units", "100+ Units", "200+ Units", "Total"],
+    "Rent Ranges":          ["Less Than $750", "$750 - $999", "$1,000 - $1,249",
+                             "$1,250 - $1,499", "$1,500 +", "Non-Market/Unknown", "Total"],
+    "Rent Quartiles":       ["Vacancy Rate (Q1)", "Vacancy Rate (Q2)",
+                             "Vacancy Rate (Q3)", "Vacancy Rate (Q4)"],
+    "Dwelling Type":        ["Single", "Semi / Row / Duplex",
+                             "Other- Primarily Accessory Suites", "Total"],
+}
+
+
 def _build_dimension_values(fact: pl.DataFrame) -> pl.DataFrame:
-    return (
+    """Sort-order lookup for (dimension, category), using _CATEGORY_ORDER.
+
+    Categories present in the explicit order list get their position (1-based);
+    anything unlisted is appended after, alphabetically, so no category is dropped.
+    """
+    pairs = (
         fact.filter(pl.col("dimension").is_not_null())
             .select(["dimension", "category"])
             .unique()
-            .sort(["dimension", "category"])
-            .with_row_index("sort_order", offset=1)
-            .with_columns(pl.col("sort_order").cast(pl.Int16))
-            .select(["dimension", "category", "sort_order"])
+    )
+    rows = []
+    for (dim,), group in pairs.group_by("dimension"):
+        cats = set(group["category"].to_list())
+        order = _CATEGORY_ORDER.get(dim, [])
+        known = [c for c in order if c in cats]
+        unknown = sorted(cats - set(known))
+        for i, cat in enumerate(known + unknown, start=1):
+            rows.append({"dimension": dim, "category": cat, "sort_order": i})
+    return (
+        pl.DataFrame(rows, schema={"dimension": pl.String, "category": pl.String,
+                                   "sort_order": pl.Int16})
+          .sort(["dimension", "sort_order"])
+    )
+
+
+def _apply_reliability_sentinel(fact: pl.DataFrame) -> pl.DataFrame:
+    """Disambiguate the two meanings of a NULL reliability (PROGRESS.md correctness pass, #4).
+
+    NULL reliability was overloaded: it meant *either* 'suppressed' *or* 'this table
+    carries no reliability info'. The natural quality filter `reliability IN ('a','b')`
+    silently dropped ~335k valid observations of the second kind. We give the second
+    kind an explicit 'n/a' sentinel, leaving NULL to mean suppressed only — so after
+    this the invariant `reliability IS NULL <=> is_suppressed` holds.
+    """
+    return fact.with_columns(
+        pl.when(~pl.col("is_suppressed") & pl.col("reliability").is_null())
+          .then(pl.lit("n/a"))
+          .otherwise(pl.col("reliability"))
+          .alias("reliability")
+    )
+
+
+def _add_is_canonical(fact: pl.DataFrame, ts_table_ids: set[str]) -> pl.DataFrame:
+    """Flag one canonical row per logical observation (PROGRESS.md correctness pass, #1).
+
+    CMHC publishes the same value through several table_id paths (province-at-CMA
+    snapshot, CMA time-series, …), so the obvious cross-section query is silently
+    2-5x duplicated. We keep every path in the star (completeness) but mark exactly
+    one row per (metric, geo, period, dimension, category) as canonical. The
+    materialized metric tables select `WHERE is_canonical`, so the analyst-facing
+    layer is correct without a window function. Tie-break prefers the Historical
+    Time Periods (time-series) source for uniform provenance across a series, then
+    smallest table_id; this also collapses exact-duplicate rows (same table_id).
+    """
+    key = ["metric_id", "geo_id", "period", "dimension", "category"]
+    return (
+        fact.with_columns(
+            pl.when(pl.col("table_id").is_in(list(ts_table_ids)))
+              .then(0).otherwise(1).alias("_ts_rank")
+        )
+        .sort([*key, "_ts_rank", "table_id"])
+        .with_columns(
+            (pl.int_range(pl.len()).over(key) == 0).alias("is_canonical")
+        )
+        .drop("_ts_rank")
     )
 
 
@@ -491,6 +569,7 @@ def _materialize_metric_tables(con: duckdb.DuckDBPyConnection) -> list[str]:
             o.period,
             CAST(extract(year FROM o.period) AS SMALLINT) AS period_year,
             o.category   AS {dim_col},
+            dv.sort_order,
             o.value      AS {value_col},
             o.reliability,
             o.is_suppressed,
@@ -500,8 +579,11 @@ def _materialize_metric_tables(con: duckdb.DuckDBPyConnection) -> list[str]:
         FROM rental_observations o
         JOIN metrics      m ON o.metric_id = m.metric_id
         JOIN geographies  g ON o.geo_id    = g.geo_id
+        LEFT JOIN dimension_values dv
+               ON dv.dimension = o.dimension AND dv.category = o.category
         WHERE m.metric_name = '{metric_name}'
           AND o.dimension   = '{dimension}'
+          AND o.is_canonical
         """
         con.execute(sql)
         n = con.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
@@ -537,16 +619,25 @@ def main() -> None:
     fact = _attach_metric_id(fact, table_id_map)
     print(f"  After metric mapping: {len(fact):,} rows")
 
-    # 6. Compute is_suppressed
+    # 6. Compute is_suppressed, then disambiguate NULL reliability (#4)
     fact = fact.with_columns(
         (pl.col("value").is_null() & pl.col("reliability").is_null()).alias("is_suppressed")
     )
+    fact = _apply_reliability_sentinel(fact)
 
     # 7. Build geographies dim (with placeholders for CMA-member CSDs absent
     # from the fact) + attach geo_id to the fact
     lookups = _canonical_geo_lookups()
     geos_df, placeholders = _build_geographies_dim(fact, lookups, add_placeholders=True)
     fact = _attach_geo_id(fact, geos_df)
+
+    # 7b. Flag the canonical row per logical observation (#1). Needs geo_id, so it
+    # runs after the join. Star keeps all paths; materialized tables filter to canonical.
+    ts_table_ids = {t.table_id for t in CATALOGUE if t.breakdown == "Historical Time Periods"}
+    fact = _add_is_canonical(fact, ts_table_ids)
+    n_canonical = int(fact["is_canonical"].sum())
+    print(f"  Canonical rows: {n_canonical:,} of {len(fact):,} "
+          f"({len(fact) - n_canonical:,} duplicate paths flagged non-canonical)")
     n_csd_with = int(((geos_df["geo_level"] == "CSD") & geos_df["has_data"]).sum())
     n_csd_without = int(((geos_df["geo_level"] == "CSD") & ~geos_df["has_data"]).sum())
     n_cma = int((geos_df["geo_level"] == "CMA").sum())
@@ -569,6 +660,7 @@ def main() -> None:
         pl.col("value"),
         pl.col("reliability"),
         pl.col("is_suppressed"),
+        pl.col("is_canonical"),
         pl.col("survey").alias("source_survey"),
         pl.col("table_id"),
         pl.col("updated_at"),
@@ -595,6 +687,7 @@ def main() -> None:
         "source_parquet_newest": datetime.fromtimestamp(source_newest, tz=timezone.utc),
         "portal_commit":         _portal_commit(),
         "n_observations":        len(obs_df),
+        "n_canonical":           n_canonical,
         "n_suppressed":          int(obs_df["is_suppressed"].sum()),
         "n_csd_with_data":       n_csd_with,
         "n_csd_no_data":         n_csd_without,
