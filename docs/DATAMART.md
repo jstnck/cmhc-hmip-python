@@ -25,7 +25,7 @@ This doc covers:
 
 **Geographic coverage:** Ontario only.
 
-- Ontario province (where the underlying table publishes at province level)
+- Ontario province. Vacancy Rate carries the full 1990–2025 October history across all five dimensions (Bedroom Type, Year of Construction, Structure Size, Rent Ranges, and Rent Quartiles from 2012). The other six Rms metrics are still snapshot-only at this level — see "Known limits"
 - 42 Ontario CMAs in the data (8 of them publish Srms; the rest are Rms-only)
 - 147 Ontario CSDs with at least one published value, plus 20 placeholder rows for CMA-member CSDs CMHC publishes nothing for
 - Of those 147, 22 belong to Census Agglomerations rather than CMAs — their CMHC publication is at the CSD level but they have no parent CMA, so these rows carry `cma = NULL` (see column conventions). They are a subset of the 147, not additional to it.
@@ -363,3 +363,7 @@ After the rebuild, `_meta.built_at_utc` tracks step 3 and per-row `updated_at` t
 - HMIP suppresses data for small CSDs. The MMAH Affordable Residential Units Bulletin substitutes census-division rollups for these cells; that estimate is NOT in this mart (CMHC-only scope). See `DATA_DISCOVERY.md` 2026-05-23 entries for the verification methodology.
 - Snapshot tables carry per-row period variance: HMIP returns each geo's most recent published value, and sparser geos may sit on older readings. The `updated_at` column tracks our archive's last refresh, not CMHC's reference date.
 - The mart is a snapshot. CMHC continually updates its archive; nothing in this file pushes updates. Rebuild on a cadence that matches your tolerance for staleness (Rms annually; Srms quarterly).
+- **Province level is uneven.** Vacancy Rate has the full 1990–2025 history; Availability Rate, Average Rent, Average Rent Change, Median Rent and Rental Universe still hold only the latest snapshot period at `geo_id = 'ON'`. The provincial series exist on HMIP — run `uv run python scripts/backfill_province_timeseries.py --series all` to add them. See `DATA_DISCOVERY.md` 2026-09-02.
+- **October only.** RMS also ran an April survey from 2007 to 2015. HMIP honours only the first value of its `season` filter and the catalogue lists October first, so no spring reading is in this file. Unfixed; needs a second catalogue entry per time-series table.
+- **No Neighbourhood or Survey Zone rows.** CMHC publishes RMS for named neighbourhoods (≈110 in the Toronto CMA) and survey zones (≈20). The pipeline fetches them, but `build_dmt_rental._assign_geo_level` keeps only rows whose name matches the Province/CMA/CSD/CT sets, so they are dropped at build time. Adding them needs two new `geo_level` values in `geographies`.
+- **Mutating the mart in place bloats the file.** DuckDB does not return freed pages to the OS, so any script that rewrites tables (`backfill_province_timeseries.py` drops and recreates all 25 metric tables) leaves dead pages behind — one run grew the file by 23 MB. Since the mart is tracked in git, run `uv run python scripts/compact_mart.py` before committing it.

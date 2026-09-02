@@ -86,10 +86,18 @@ def is_valid_for_geo(table: Table, geo: Geography) -> bool:
         return table.geo_filter in CANADA_AGG_FILTERS
 
     if geo.geography_type_id == TYPE_PROVINCE:
-        # Only "Centres" breakdown reliably works at province level — it lists
-        # the CMAs within the province.
+        # "Centres" lists the CMAs within the province. "Historical Time
+        # Periods" returns the province's own series — HMIP serves these at
+        # province level for every survey (verified live at Ontario,
+        # 2026-09-02: 17/18 sampled tables across Rms / Scss / Srms / Seniors /
+        # Census / Core Housing Need returned data; the one failure, Seniors
+        # 3.8.6, 500s at every geography). They were excluded until then, which
+        # cost us the provincial history entirely — see
+        # docs/DATA_DISCOVERY.md 2026-09-02.
         if table.breakdown in SUB_CMA_BREAKDOWNS:
             return False
+        if table.breakdown == "Historical Time Periods":
+            return table.geo_filter == "Default"
         return table.breakdown == "Centres" and table.geo_filter == "Default"
 
     if geo.geography_type_id == TYPE_CMA:

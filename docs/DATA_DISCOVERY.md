@@ -78,6 +78,43 @@ A copy of the bulletin lives under `data/raw/ontario_gov/affordable_units/` for 
 
 Append-only. Newest at top.
 
+### 2026-09-02 — Province-level Historical Time Periods were never requested; the mart held no provincial history at all
+
+**Context.** Coverage audit of `data/marts/cmhc_rental.duckdb`, prompted by the question "do we have all the RMS data?" The Ontario province row carried 92 observations on a single date (October 2025), against 1990–2025 for every CMA. That triggered the "missing data is suspicious" default.
+
+**Finding 1 — HMIP serves province-level time series; we filtered them out.** `validity.is_valid_for_geo` admitted only `breakdown == "Centres"` at `TYPE_PROVINCE`, so all 19 Rms Historical Time Periods tables evaluated `False` for Ontario and were never fetched. Requesting them directly returns the full series:
+
+```
+2.2.1 @ Ontario  ->  "Historical Vacancy Rates by Bedroom Type / 1990 to 2025"  (2,406 bytes)
+2.2.1 @ Canada   ->  same shape, national series
+```
+
+Sampled 18 Historical Time Periods tables across all six surveys at Ontario: **17 returned data**. The one failure (`Seniors 3.8.6`) 500s at every geography, so it is unrelated. The exclusion was not empirically grounded — it cost us the provincial *and* national history for every survey.
+
+**Finding 2 — the same rule blocks Canada.** The `geo is CANADA` branch admits Provinces/Centres breakdowns or `geo_filter in CANADA_AGG_FILTERS`; the time-series tables carry `geo_filter='Default'`, so they are rejected there too. Not yet fixed — the mart is Ontario-scoped, so it changes nothing downstream until a national mart exists.
+
+**Finding 3 — the April (spring) RMS is unreachable through the current catalogue.** `_expand_rms_timeseries` sets `season: ["October", "April"]`. HMIP honours only the **first** value: requesting `["October","April"]` returns the October series, `["April","October"]` returns April, `["April"]` returns 9 spring readings (2007–2015). Every Rms row in the archive is therefore October, and the spring survey is absent. Fix is a second catalogue entry per time-series table with `season=["April"]` plus a distinct storage key — not done here.
+
+**Also confirmed genuine absences** (probed, not assumed):
+
+| Apparent gap | Probe | Verdict |
+|---|---|---|
+| 793 Ontario CTs in the lookup missing from the mart | 12 sampled Toronto CTs, `2.2.1` | all "No data available" — real |
+| 407 non-CMA-member Ontario CSDs never pulled | 14 sampled (Hanover, Goderich, Dryden, Fort Frances, …) | all empty — CMHC doesn't publish there |
+| Windsor CMA series starts 2023, not 1990 | `2.2.1 @ Windsor` | HMIP itself returns only 2023–2025 — upstream, not a pull failure |
+| Essa CA absent (43 Ontario CMAs/CAs in lookup, 42 in mart) | `2.2.1 @ Essa` | empty upstream |
+| An unmapped Rms dimension might exist | swept `2.2.1`–`2.2.40` at Toronto | every uncatalogued id 500s; the 19-pair Rms surface is complete |
+
+**Action taken.**
+1. `validity.is_valid_for_geo` now admits `Historical Time Periods` at province level (`geo_filter == "Default"`). Guarded by three tests in `tests/test_validity.py`, including one asserting all 19 Rms series pass.
+2. `scripts/backfill_province_timeseries.py` — fetches province-level Historical Time Periods tables, writes the raw CSVs into `data/raw/` under the normal layout, and merges the rows into an existing mart without a full re-pull. Metric ids, dimension labels and the materialized-table specs are imported from `build_dmt_rental` so the two cannot drift. Idempotent; `--dry-run` reports without writing.
+3. Ran it for Ontario vacancy rates: **+884 rows**, 1990–2025, across all five vacancy dimensions (Bedroom Type, Year of Construction, Structure Size, Rent Ranges, Rent Quartiles 2012–2025). Verified byte-for-byte that no non-Ontario row changed.
+4. `scripts/compact_mart.py` — `COPY FROM DATABASE` into a fresh file. DuckDB never returns freed pages to the OS, so the backfill's drop-and-recreate of the 25 metric tables grew the mart 40 MB → 63 MB for 884 added rows. Since the mart is a tracked binary, that bloat would be committed and pushed as a new blob each time. Compaction brought it to 38.8 MB — below the pre-backfill size, because it also reclaimed dead space left by earlier rebuilds.
+
+**Interaction with the 2026-06-18 correctness pass.** The two landed independently and were reconciled on rebase. The backfill now imports `_apply_reliability_sentinel` and `_add_is_canonical` from `build_dmt_rental` alongside the metric map, so the rows it writes carry the `'n/a'` sentinel and participate in canonical selection. `is_canonical` cannot be set per-table on the way in — it is a property of all the rows for a geography — so the script recomputes it across `geo_id = 'ON'` after inserting. That is what resolves the duplicate the audit had flagged separately: October 2025 was published through both the snapshot path (`2.1.1.1`) and the new series path (`2.2.1`), and the series row now wins the tie-break, leaving 953 canonical rows of 976 at Ontario. All four mart invariants re-checked afterwards (canonical uniqueness, canonical existence per key, `reliability IS NULL ⇔ is_suppressed`, `_meta` agreement).
+
+**Still open.** The other six Rms metrics at province level (`--series all` fetches them), Canada-level series, the April survey, and the Neighbourhood / Survey Zone rows that `build_dmt_rental._assign_geo_level` fetches and then discards for want of a matching `geo_level`.
+
 ### 2026-06-17 — 11 tables deterministically 500 at CT level (4 derived Rms series + all 7 Srms); handled with a run-time skip, not a catalogue/validity edit
 
 **Context.** First real Ontario CT pull (Rms, post the 2026-06-16 leaf-redundancy guard → 19 tables/CT). Three runs in, the resume appeared to be "all 500s." Investigated rather than denylisting blind.

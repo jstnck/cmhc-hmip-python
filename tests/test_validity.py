@@ -2,8 +2,8 @@
 for non-CMA-member CSDs (a removable optimization documented in
 validity.py's module docstring)."""
 
-from cmhc.catalogue import Table
-from cmhc.geographies import CSDS_ONTARIO, CSDS_ONTARIO_CMA, CTS_ONTARIO
+from cmhc.catalogue import CATALOGUE, Table
+from cmhc.geographies import CSDS_ONTARIO, CSDS_ONTARIO_CMA, CTS_ONTARIO, PROVINCES
 from cmhc.validity import is_valid_for_geo
 
 
@@ -73,3 +73,32 @@ def test_parent_breakdowns_always_rejected_for_csd():
     for geo in (CSDS_ONTARIO_CMA[cma_uid], next(iter(CSDS_ONTARIO.values()))):
         for breakdown in ("Provinces", "Centres"):
             assert not is_valid_for_geo(_table(breakdown), geo)
+
+
+def test_province_accepts_time_series_and_centres():
+    """A province query is valid for its own Historical Time Periods series and
+    for the Centres breakdown (which lists the CMAs inside it). HMIP serves
+    both — verified live at Ontario, 2026-09-02."""
+    ontario = PROVINCES["Ontario"]
+    for breakdown in ("Centres", "Historical Time Periods"):
+        assert is_valid_for_geo(_table(breakdown), ontario), \
+            f"province should accept {breakdown!r}"
+
+
+def test_province_rejects_sub_cma_breakdowns():
+    """Survey Zones / Neighbourhoods / CTs / CSDs are enumerated from a CMA, not
+    from a province."""
+    ontario = PROVINCES["Ontario"]
+    for breakdown in ("Survey Zones", "Neighbourhoods", "Census Tracts", "Census Subdivision"):
+        assert not is_valid_for_geo(_table(breakdown), ontario), \
+            f"province should reject {breakdown!r}"
+
+
+def test_every_rms_time_series_table_is_valid_at_province():
+    """Regression guard for the 2026-09-02 gap: the whole Rms Historical Time
+    Periods set was excluded at province level, so the mart held no provincial
+    history at all."""
+    ts = [t for t in CATALOGUE
+          if t.survey == "Rms" and t.breakdown == "Historical Time Periods"]
+    assert len(ts) == 19
+    assert all(is_valid_for_geo(t, PROVINCES["Ontario"]) for t in ts)

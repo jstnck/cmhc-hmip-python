@@ -69,6 +69,8 @@ build_static_parquet.py  →  matrix engine (MatrixSpec + catalogue provenance, 
 | `download_static.py` | Fetch every catalogued static asset → `data/raw/static/{section}/`. Idempotent (skips existing unless `--force`). |
 | `build_static_parquet.py` | Parse each spec'd static table via the matrix engine → `data/clean/static/{table_id}.parquet`. Mtime-idempotent; only builds tables present in `specs.py`. |
 | `probe_table.py` | Diagnostic single-table prober. `probe_table.py <table_id> --geo <name>` tries bare + catalogue + leave-one-out filter variants; identifies stale catalogue filters. See [DATA_DISCOVERY.md](DATA_DISCOVERY.md). |
+| `compact_mart.py` | `COPY FROM DATABASE` a mart into a fresh file to reclaim dead pages. DuckDB never frees space in place, so any in-place mutation of the mart bloats a tracked binary (one backfill run: 40 MB → 63 MB). Run before committing a mutated mart. |
+| `backfill_province_timeseries.py` | Fetches province-level `Historical Time Periods` tables and merges them into an existing mart without a full re-pull. Writes raw CSVs into `data/raw/` under the normal layout so a later `build_parquet.py` + `build_dmt_rental.py` reproduces the same rows. Defaults to Ontario / Vacancy Rate; `--series all` for every Rms metric, `--dry-run` to report without writing. Idempotent. See [DATA_DISCOVERY.md](DATA_DISCOVERY.md) 2026-09-02. |
 
 ### Geo lookups (`src/cmhc/data/`)
 
@@ -92,7 +94,7 @@ Raw zips cached at `data/raw/boundaries/` to avoid re-downloading (~50 MB). Buil
 
 ### Tests
 
-63 unit tests covering catalogue, geographies (incl. Ontario CSD + CT lookups), hmip, tidy (period parsing, snapshot CSV shape, subtitle period extraction, single-geo row preservation), validity, and the static matrix engine (the three layout families, reliability columns, divider/footnote dropping, registry + catalogue wiring). All green.
+73 unit tests covering catalogue, geographies (incl. Ontario CSD + CT lookups), hmip, tidy (period parsing, snapshot CSV shape, subtitle period extraction, single-geo row preservation), validity (incl. the province-level Historical Time Periods guard added 2026-09-02), the mart build (`test_dmt_rental.py` — canonical-row uniqueness, the reliability sentinel, category ordering), and the static matrix engine (the three layout families, reliability columns, divider/footnote dropping, registry + catalogue wiring). All green.
 
 ---
 
@@ -129,6 +131,8 @@ All 128 catalogued assets downloaded to `data/raw/static/` (~50 MB; 118 xlsx + 1
 `data/marts/cmhc_rental.duckdb` — Ontario rental extract for analyst handoff. Star schema + 25 materialized metric tables, ~39 MB. CT level added 2026-06-17 (Rms only; CT rental is heavily confidentiality-suppressed). Live counts (observations, canonical, suppressed, geographies) and the coverage statement are in the mart's `_meta` table — query it rather than restating here. See [DATAMART.md](DATAMART.md). Rebuild: `uv run python scripts/build_dmt_rental.py`.
 
 **Correctness pass (2026-06-18, from a hands-on mart evaluation):** (#1) the same value published through 2–5 `table_id` paths silently triplicated the headline cross-section query — added `is_canonical` (star keeps all paths; materialized tables filter to one row per logical cell). (#3) `sort_order` was alphabetical (`Studio` after `Total`) and absent from the metric tables — replaced with an explicit per-dimension order and joined in. (#4) `reliability IS NULL` was overloaded (suppressed vs no-info) and silently dropped ~335k valid rows from `reliability IN ('a','b')` — non-suppressed unrated rows now carry the `'n/a'` sentinel, so `NULL ⇔ is_suppressed`. (#2) `Summary Statistics` (a repackaging of metrics 1–6) dropped from the mart. Regression tests in `tests/test_dmt_rental.py`.
+
+**Province-level vacancy history (2026-09-02):** Ontario Vacancy Rate backfilled to the full 1990–2025 October series across all five dimensions via `scripts/backfill_province_timeseries.py`, after `validity.is_valid_for_geo` was found to exclude every province-level Historical Time Periods table. See [DATA_DISCOVERY.md](DATA_DISCOVERY.md) 2026-09-02.
 
 **Parquet schema (uniform):**
 ```
@@ -202,6 +206,10 @@ Discovery write-ups live in [DATA_DISCOVERY.md](DATA_DISCOVERY.md) — append-on
 | 8 | ~~CSD/CT pulls done before issues 6+7 fixed → stale empty markers~~ | RESOLVED 2026-06-09 | `pull_csds.py --refresh-empty-days 0` rerun; CSD-level Rms now expanded from ~140k rows to ~440k. CT pull since completed (item 10). |
 | 9 | ~~CMHC vs StatCan CSD-name slash/hyphen drift dropping 5 CSDs from mart~~ | RESOLVED 2026-06-10 | Added `cmhc.geographies.normalize_name()`. Mart now matches both forms. |
 | 10 | ~~Ontario CT pull~~ | RESOLVED 2026-06-17 | All 15 tract-publishing Rms tables pulled across 2,382 CTs (after the 2026-06-16 leaf-redundancy guard + the 2026-06-17 exclusion of 11 CT-500 tables). 1,589 CTs returned data; parquet + mart rebuilt. Biggest remaining Ontario-rental coverage gap, now closed. |
+| 11 | ~~Province-level Historical Time Periods never requested~~ | RESOLVED 2026-09-02 for the pull filter; partially backfilled in the mart | `validity.is_valid_for_geo` admitted only `Centres` at province level, so no province held any history. Fixed + guarded by tests. Ontario Vacancy Rate backfilled (1990–2025, all five dimensions); the other six Rms metrics need `backfill_province_timeseries.py --series all`. See DATA_DISCOVERY.md 2026-09-02. |
+| 12 | Canada-level Historical Time Periods still excluded | Low–Medium | Same root cause as #11, different branch: the `geo is CANADA` path requires a Provinces/Centres breakdown or `geo_filter in CANADA_AGG_FILTERS`, and the time-series tables carry `Default`. HMIP serves them (verified 2026-09-02). No downstream effect while the mart is Ontario-scoped. |
+| 13 | April (spring) RMS 2007–2015 not collected | Medium | HMIP honours only the first value of the `season` filter; the catalogue lists October first, so every Rms row we hold is October. Needs a second time-series catalogue entry with `season=["April"]` and a distinct storage key. |
+| 14 | Neighbourhood + Survey Zone rows fetched, then dropped at mart build | Medium | `build_dmt_rental._assign_geo_level` keeps only Province/CMA/CSD/CT name matches. CMHC publishes ≈110 named neighbourhoods and ≈20 zones for the Toronto CMA alone. Needs two new `geo_level` values — overlaps item 11 in "Later". |
 
 ### HMIP 500s on specific (table, CMA) pairs
 
